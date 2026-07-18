@@ -1,9 +1,19 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
   title: "BT OS",
   description: "Personal operating system",
+  // full-screen home-screen launch with the BT icon and a dark status bar
+  appleWebApp: {
+    capable: true,
+    title: "BT OS",
+    statusBarStyle: "black-translucent",
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#0c0c0e",
 };
 
 export default function RootLayout({
