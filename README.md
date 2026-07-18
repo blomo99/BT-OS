@@ -20,12 +20,17 @@ and gives the database a persistent disk:
    GitHub repo** → pick this repo (it auto-detects the Dockerfile).
 2. In the service: **Settings → Volumes → Add volume**, mount path
    `/data`.
-3. **Variables** — add:
+3. **Variables** — add (see `.env.example` for the full list):
    - `BTOS_DATA_DIR` = `/data` (puts the SQLite db + uploads on the volume)
    - `APP_PASSWORD` = a strong password — **required**; without it the
      dashboard (and your stored API keys) are open to the whole internet.
      Every device then signs in once via the browser's password prompt
      (any username).
+   - Your integration keys (`ANTHROPIC_API_KEY`, `IMPACT_SID`,
+     `IMPACT_TOKEN`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`,
+     `IG_SESSION`, `YT_API_KEY`, …). Set here, they load automatically —
+     no need to re-enter anything in the Settings screen. The Settings
+     screen still works and overrides an env value if you type one in.
 4. **Settings → Networking → Generate Domain** → open
    `https://<app>.up.railway.app`, enter the password, re-enter your
    integration keys in Settings (the local database does not upload),

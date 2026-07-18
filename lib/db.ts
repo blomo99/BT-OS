@@ -332,11 +332,43 @@ function migrate(db: Database.Database) {
   `);
 }
 
+// Secrets/config can be supplied via environment instead of the Settings UI,
+// so a fresh deploy (Railway) never needs re-entering. DB value wins when
+// present (explicit override); otherwise fall back to env, then to a baked-in
+// default for the non-sensitive account handles. Secrets have NO hardcoded
+// default — they must come from the DB or env, never from tracked source.
+const ENV_FALLBACK: Record<string, string> = {
+  impact_sid: "IMPACT_SID",
+  impact_token: "IMPACT_TOKEN",
+  anthropic_api_key: "ANTHROPIC_API_KEY",
+  yt_api_key: "YT_API_KEY",
+  ig_session: "IG_SESSION",
+  google_client_id: "GOOGLE_CLIENT_ID",
+  google_client_secret: "GOOGLE_CLIENT_SECRET",
+  google_refresh_token: "GOOGLE_REFRESH_TOKEN",
+  yt_handle: "YT_HANDLE",
+  ig_handle: "IG_HANDLE",
+  tt_handle: "TT_HANDLE",
+};
+
+// public account identifiers — safe to bake in as defaults
+const SETTING_DEFAULTS: Record<string, string> = {
+  yt_handle: "@CyberWithBen",
+  ig_handle: "@CyberWithBen",
+  tt_handle: "@CyberWithBen",
+};
+
 export function getSetting(key: string): string | null {
   const row = getDb().prepare("SELECT value FROM settings WHERE key = ?").get(key) as
     | { value: string }
     | undefined;
-  return row?.value ?? null;
+  if (row?.value) return row.value;
+
+  const envKey = ENV_FALLBACK[key];
+  const envVal = envKey ? process.env[envKey]?.trim() : undefined;
+  if (envVal) return envVal;
+
+  return SETTING_DEFAULTS[key] ?? null;
 }
 
 export function setSetting(key: string, value: string | null) {
