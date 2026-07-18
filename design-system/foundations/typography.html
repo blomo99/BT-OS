@@ -1,0 +1,56 @@
+<!-- @dsCard group="Foundations" name="Typography" -->
+<style>
+:root {
+  color-scheme: dark;
+  --bg: #0b0c0f; --card: #121317; --card-2: #191b20; --card-3: #22242b;
+  --border: rgba(255,255,255,0.065); --border-2: rgba(255,255,255,0.14);
+  --text-1: #eef0f3; --text-2: #9da2ad; --text-3: #5f646e;
+  --accent: #f5c518; --accent-bright: #ffd84d; --accent-soft: rgba(245,197,24,0.15);
+  --good: #34b26b; --good-soft: rgba(52,178,107,0.12);
+  --warn: #e0823d; --warn-soft: rgba(224,130,61,0.13);
+  --danger: #e66767; --danger-soft: rgba(230,103,103,0.1);
+  --shadow-card: 0 1px 2px rgba(0,0,0,0.4), 0 8px 24px -12px rgba(0,0,0,0.5);
+  --radius-card: 14px;
+}
+* { box-sizing: border-box; margin: 0; }
+body {
+  background: var(--bg); color: var(--text-1);
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-feature-settings: "tnum"; padding: 24px; font-size: 14px;
+}
+.surface {
+  background: linear-gradient(180deg, rgba(255,255,255,0.025), rgba(255,255,255,0) 48px), var(--card);
+  border: 1px solid var(--border); border-radius: var(--radius-card); box-shadow: var(--shadow-card);
+}
+.label { font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-3); margin: 18px 0 8px; }
+.label:first-child { margin-top: 0; }
+.row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+.btn-primary {
+  border: 0; cursor: pointer; border-radius: 6px; background: var(--accent); color: #000;
+  padding: 6px 12px; font-size: 12px; font-weight: 500; font-family: inherit;
+  box-shadow: 0 0 0 1px rgba(255,255,255,0.08) inset, 0 4px 12px -4px rgba(245,197,24,0.45);
+}
+.btn-primary:hover { background: var(--accent-bright); }
+.btn-text { border: 0; cursor: pointer; border-radius: 6px; background: transparent; color: var(--text-2); padding: 6px 10px; font-size: 12px; font-family: inherit; }
+.btn-text:hover { background: var(--card-2); color: var(--text-1); }
+.checkbox { display: inline-flex; height: 17px; width: 17px; align-items: center; justify-content: center; border-radius: 5px; border: 1px solid var(--border-2); }
+.checkbox.checked { border-color: var(--accent); background: var(--accent); }
+.checkbox.checked.good { border-color: var(--good); background: var(--good); }
+.checkbox.dashed { border-style: dashed; }
+.input { width: 100%; border-radius: 8px; border: 1px solid var(--border); background: var(--card-2); padding: 6px 12px; font-size: 14px; color: var(--text-1); font-family: inherit; }
+.input::placeholder { color: var(--text-3); }
+.pill { display: inline-flex; align-items: center; gap: 6px; border-radius: 999px; padding: 3px 10px; font-size: 11px; font-weight: 500; }
+.pill .dot { height: 6px; width: 6px; border-radius: 999px; }
+</style>
+<main>
+    <div class="label">Display numeral — stat tiles</div>
+    <div style="font-size:26px;font-weight:600;font-variant-numeric:tabular-nums">46.1K</div>
+    <div class="label">Card title</div>
+    <div style="font-size:12px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-2)">Brand deals <span style="font-weight:400;letter-spacing:0;text-transform:none;color:var(--text-3);margin-left:6px">1 active · $3,500 in pipeline</span></div>
+    <div class="label">Body</div>
+    <div style="font-size:14px">Edit CyberWithBen short on AI scams</div>
+    <div style="font-size:14px;color:var(--text-3);text-decoration:line-through;margin-top:4px">Send invoice to Notion</div>
+    <div class="label">Caption / meta</div>
+    <div style="font-size:12px;color:var(--text-3)">Sep 7 · 2:00 PM · carried</div>
+    <p style="font-size:11px;color:var(--text-3);margin-top:16px;max-width:560px">App font is Geist (previews fall back to system sans). Numerals are always tabular ("tnum") so counts and money align.</p>
+  </main>
