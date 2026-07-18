@@ -2,7 +2,8 @@ import Database from "better-sqlite3";
 import fs from "fs";
 import path from "path";
 
-const DATA_DIR = path.join(process.cwd(), "data");
+// BTOS_DATA_DIR lets hosted deployments point at a persistent volume
+const DATA_DIR = process.env.BTOS_DATA_DIR || path.join(process.cwd(), "data");
 export const UPLOADS_DIR = path.join(DATA_DIR, "uploads");
 
 let db: Database.Database | null = null;

@@ -10,7 +10,35 @@ npm run dev        # http://localhost:3000  (development)
 npm run serve      # build + production server on :3000
 ```
 
-## Use it from your phone (Tailscale)
+## Deploy on Railway (hosted, phone-ready)
+
+BT OS is a server app with a local SQLite database — it cannot run on
+static hosts like GitHub Pages. Railway runs the included `Dockerfile`
+and gives the database a persistent disk:
+
+1. [railway.app](https://railway.app) → New Project → **Deploy from
+   GitHub repo** → pick this repo (it auto-detects the Dockerfile).
+2. In the service: **Settings → Volumes → Add volume**, mount path
+   `/data`.
+3. **Variables** — add:
+   - `BTOS_DATA_DIR` = `/data` (puts the SQLite db + uploads on the volume)
+   - `APP_PASSWORD` = a strong password — **required**; without it the
+     dashboard (and your stored API keys) are open to the whole internet.
+     Every device then signs in once via the browser's password prompt
+     (any username).
+4. **Settings → Networking → Generate Domain** → open
+   `https://<app>.up.railway.app`, enter the password, re-enter your
+   integration keys in Settings (the local database does not upload),
+   and add the new domain's callback
+   (`https://<app>.up.railway.app/api/google/callback`) to the Google
+   OAuth client for AdSense.
+5. On your phone: open the URL → Add to Home Screen.
+
+Caveats: YouTube/TikTok/Instagram scraping from datacenter IPs is less
+reliable than from a home connection (metrics may fall back to manual
+more often), and the Hobby plan (~$5/mo) is the practical floor.
+
+## Use it from your phone (Tailscale — free alternative)
 
 BT OS is a server app with a local SQLite database — it cannot run on
 static hosts like GitHub Pages. The intended setup for phone access is
