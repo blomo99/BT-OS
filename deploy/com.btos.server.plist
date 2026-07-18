@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  Auto-start BT OS on login (production server on port 3000).
+
+  Install:
+    1. Build once:  npm run build          (from the BT OS folder)
+    2. cp deploy/com.btos.server.plist ~/Library/LaunchAgents/
+    3. launchctl load ~/Library/LaunchAgents/com.btos.server.plist
+
+  Uninstall:
+    launchctl unload ~/Library/LaunchAgents/com.btos.server.plist
+    rm ~/Library/LaunchAgents/com.btos.server.plist
+
+  Logs land in /tmp/btos-server.log. After pulling code changes, run
+  `npm run build` again and `launchctl kickstart -k gui/$(id -u)/com.btos.server`.
+-->
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>com.btos.server</string>
+  <key>WorkingDirectory</key>
+  <string>/Users/bentruong/Documents/BT OS</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/bin/zsh</string>
+    <string>-lc</string>
+    <string>npm start</string>
+  </array>
+  <key>RunAtLoad</key>
+  <true/>
+  <key>KeepAlive</key>
+  <true/>
+  <key>StandardOutPath</key>
+  <string>/tmp/btos-server.log</string>
+  <key>StandardErrorPath</key>
+  <string>/tmp/btos-server.log</string>
+</dict>
+</plist>

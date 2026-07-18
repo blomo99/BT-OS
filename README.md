@@ -6,8 +6,31 @@ SQLite database at `data/btos.db`; uploaded contracts live in `data/uploads/`.
 ## Run it
 
 ```bash
-npm run dev        # http://localhost:3000
+npm run dev        # http://localhost:3000  (development)
+npm run serve      # build + production server on :3000
 ```
+
+## Use it from your phone (Tailscale)
+
+BT OS is a server app with a local SQLite database — it cannot run on
+static hosts like GitHub Pages. The intended setup for phone access is
+[Tailscale](https://tailscale.com) (free), which gives your devices a
+private network to the Mac running BT OS:
+
+1. Install Tailscale on the Mac (App Store or tailscale.com/download)
+   and sign in; do the same on your phone with the same account.
+2. Keep the server running on the Mac — `npm run serve`, or install
+   `deploy/com.btos.server.plist` (instructions inside) to auto-start
+   it on login.
+3. On the phone, open `http://<mac-name>:3000` (the machine name shown
+   in the Tailscale app — MagicDNS resolves it from anywhere).
+4. Add it to your home screen — the UI is mobile-optimized with a
+   floating quick-capture button.
+
+Notes: the Mac must be awake for access (System Settings → Battery →
+prevent sleeping when plugged in helps); Google's OAuth consent for
+AdSense should be done from the Mac itself since its redirect URI is
+`localhost`.
 
 ## Structure
 
