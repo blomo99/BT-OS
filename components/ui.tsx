@@ -1,6 +1,7 @@
 "use client";
 
 import { ReactNode, useEffect } from "react";
+import { createPortal } from "react-dom";
 
 export function Card({
   children,
@@ -175,9 +176,15 @@ export function Modal({
   }, [open, onClose]);
 
   if (!open) return null;
+  if (typeof document === "undefined") return null;
   const widthCls =
     size === "full" ? "max-w-[min(1400px,95vw)]" : wide ? "max-w-2xl" : "max-w-md";
-  return (
+  // Portaled to <body>: a page's own .fade-up entrance animation leaves a
+  // resolved (identity) `transform` behind via its `both` fill-mode, and any
+  // non-"none" transform on an ancestor makes IT the containing block for
+  // position:fixed — silently shrinking this modal to that ancestor's box
+  // instead of the viewport. Rendering at the body root sidesteps that.
+  return createPortal(
     <div
       className={`overlay-in fixed inset-0 z-50 flex items-start justify-center bg-black/65 backdrop-blur-[3px] p-4 overflow-y-auto max-md:p-0 ${size === "full" ? "pt-[4vh]" : "pt-[8vh]"} max-md:pt-0`}
       onMouseDown={(e) => e.target === e.currentTarget && onClose()}
@@ -185,7 +192,10 @@ export function Modal({
       <div
         className={`surface modal-in w-full ${widthCls} !shadow-2xl max-md:min-h-dvh max-md:max-w-none max-md:rounded-none`}
       >
-        <header className="flex items-center justify-between border-b border-line px-5 py-3.5">
+        <header
+          className="flex items-center justify-between border-b border-line px-5 py-3.5"
+          style={{ paddingTop: "max(0.875rem, calc(0.5rem + env(safe-area-inset-top)))" }}
+        >
           <h3 className="text-sm font-medium">{title}</h3>
           <IconButton label="Close" onClick={onClose}>
             <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
@@ -193,9 +203,10 @@ export function Modal({
             </svg>
           </IconButton>
         </header>
-        <div className="px-5 py-4">{children}</div>
+        <div className="px-5 py-4 max-md:pb-[calc(1rem+env(safe-area-inset-bottom))]">{children}</div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
 

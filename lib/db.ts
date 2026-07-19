@@ -19,6 +19,7 @@ export function getDb(): Database.Database {
   migrateV4(db);
   migrateV5(db);
   migrateV6(db);
+  migrateV7(db);
   return db;
 }
 
@@ -250,6 +251,22 @@ function migrateV6(db: Database.Database) {
     );
   `);
   db.pragma("user_version = 6");
+}
+
+/** v7: idea bank — freeform title/notes captures, kept until explicitly deleted. */
+function migrateV7(db: Database.Database) {
+  const version = db.pragma("user_version", { simple: true }) as number;
+  if (version >= 7) return;
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS ideas (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      title TEXT NOT NULL,
+      notes TEXT,
+      created_at TEXT NOT NULL DEFAULT (datetime('now')),
+      updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+    );
+  `);
+  db.pragma("user_version = 7");
 }
 
 function migrate(db: Database.Database) {

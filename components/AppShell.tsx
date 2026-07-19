@@ -2,6 +2,7 @@
 
 import { ReactNode, Suspense, useEffect, useState } from "react";
 import Sidebar from "@/components/Sidebar";
+import MobileTabBar from "@/components/MobileTabBar";
 import SettingsModal from "@/components/SettingsModal";
 import CaptureModal from "@/components/CaptureModal";
 
@@ -28,25 +29,25 @@ export default function AppShell({ children }: { children: ReactNode }) {
 
   return (
     <div className="flex min-h-screen">
-      <Suspense fallback={<aside className="sticky top-0 h-screen w-52 shrink-0 border-r border-line bg-[#0d0e11] max-md:w-14" />}>
+      <Suspense fallback={<aside className="sticky top-0 hidden h-screen w-52 shrink-0 border-r border-line bg-[#0d0e11] md:block" />}>
         <Sidebar
           onOpenSettings={() => setSettingsOpen(true)}
           onOpenCapture={() => setCaptureOpen(true)}
         />
       </Suspense>
-      <main className="min-w-0 flex-1 px-6 py-6 lg:px-8 max-md:px-3 max-md:py-4 max-md:pb-24">{children}</main>
-
-      {/* phone: thumb-reachable quick capture (⌘K has no mobile equivalent) */}
-      <button
-        onClick={() => setCaptureOpen(true)}
-        aria-label="Quick capture"
-        className="fixed bottom-5 right-5 z-40 hidden items-center justify-center rounded-full bg-accent text-black shadow-lg shadow-black/40 active:scale-95 transition-transform max-md:flex"
-        style={{ height: 52, width: 52 }}
+      <main
+        className="min-w-0 flex-1 px-6 py-6 lg:px-8 max-md:px-3 max-md:pb-[calc(6rem+env(safe-area-inset-bottom))]"
+        style={{ paddingTop: "max(1.5rem, calc(0.75rem + env(safe-area-inset-top)))" }}
       >
-        <svg width="20" height="20" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2">
-          <path d="M8 3v10M3 8h10" strokeLinecap="round" />
-        </svg>
-      </button>
+        {children}
+      </main>
+
+      <Suspense>
+        <MobileTabBar
+          onOpenCapture={() => setCaptureOpen(true)}
+          onOpenSettings={() => setSettingsOpen(true)}
+        />
+      </Suspense>
 
       <SettingsModal
         open={settingsOpen}

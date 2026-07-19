@@ -11,13 +11,14 @@ import {
   TIME_OPTIONS,
 } from "@/components/ui";
 
-type CaptureType = "task" | "event" | "content" | "deal";
+type CaptureType = "task" | "event" | "content" | "deal" | "idea";
 
 const TYPES: { key: CaptureType; label: string }[] = [
   { key: "task", label: "Task" },
   { key: "event", label: "Event" },
   { key: "content", label: "Content idea" },
   { key: "deal", label: "Deal lead" },
+  { key: "idea", label: "Idea bank" },
 ];
 
 export default function CaptureModal({
@@ -93,7 +94,7 @@ export default function CaptureModal({
             notes: notes || null,
           }),
         });
-      } else {
+      } else if (type === "deal") {
         res = await fetch("/api/deals", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -103,6 +104,12 @@ export default function CaptureModal({
             due_date: dueDate || null,
             notes: notes || null,
           }),
+        });
+      } else {
+        res = await fetch("/api/ideas", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ title, notes: notes || null }),
         });
       }
       if (!res.ok) {
@@ -148,7 +155,7 @@ export default function CaptureModal({
         </div>
 
         <input
-          className={`${inputCls} !py-2 !text-[15px]`}
+          className={`${inputCls} !py-2`}
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           placeholder={
@@ -158,46 +165,50 @@ export default function CaptureModal({
                 ? "Video idea: certifications employers respect"
                 : type === "deal"
                   ? "Brand name"
-                  : "Mylo vet appointment"
+                  : type === "idea"
+                    ? "A random thought worth keeping…"
+                    : "Mylo vet appointment"
           }
           autoFocus
         />
 
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-          {type === "task" && (
-            <Field label="Priority">
-              <select className={inputCls} value={priority} onChange={(e) => setPriority(e.target.value)}>
-                <option value="">None</option>
-                <option value="1">High</option>
-                <option value="2">Medium</option>
-                <option value="3">Low</option>
-              </select>
+        {type !== "idea" && (
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+            {type === "task" && (
+              <Field label="Priority">
+                <select className={inputCls} value={priority} onChange={(e) => setPriority(e.target.value)}>
+                  <option value="">None</option>
+                  <option value="1">High</option>
+                  <option value="2">Medium</option>
+                  <option value="3">Low</option>
+                </select>
+              </Field>
+            )}
+            {type === "content" && (
+              <Field label="Format">
+                <select className={inputCls} value={format} onChange={(e) => setFormat(e.target.value)}>
+                  <option value="short">Short</option>
+                  <option value="long">Long-form</option>
+                  <option value="carousel">Carousel</option>
+                  <option value="newsletter">Newsletter</option>
+                </select>
+              </Field>
+            )}
+            <Field label={type === "event" ? "Date" : type === "content" ? "Target date" : "Due date"}>
+              <input type="date" className={inputCls} value={dueDate} onChange={(e) => setDueDate(e.target.value)} />
             </Field>
-          )}
-          {type === "content" && (
-            <Field label="Format">
-              <select className={inputCls} value={format} onChange={(e) => setFormat(e.target.value)}>
-                <option value="short">Short</option>
-                <option value="long">Long-form</option>
-                <option value="carousel">Carousel</option>
-                <option value="newsletter">Newsletter</option>
-              </select>
-            </Field>
-          )}
-          <Field label={type === "event" ? "Date" : type === "content" ? "Target date" : "Due date"}>
-            <input type="date" className={inputCls} value={dueDate} onChange={(e) => setDueDate(e.target.value)} />
-          </Field>
-          {type === "event" && (
-            <Field label="Time">
-              <select className={inputCls} value={time} onChange={(e) => setTime(e.target.value)}>
-                <option value="">All day</option>
-                {TIME_OPTIONS.map((t) => (
-                  <option key={t.value} value={t.value}>{t.label}</option>
-                ))}
-              </select>
-            </Field>
-          )}
-        </div>
+            {type === "event" && (
+              <Field label="Time">
+                <select className={inputCls} value={time} onChange={(e) => setTime(e.target.value)}>
+                  <option value="">All day</option>
+                  {TIME_OPTIONS.map((t) => (
+                    <option key={t.value} value={t.value}>{t.label}</option>
+                  ))}
+                </select>
+              </Field>
+            )}
+          </div>
+        )}
 
         <textarea
           className={`${inputCls} min-h-[56px] resize-y`}

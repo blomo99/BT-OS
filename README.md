@@ -57,8 +57,8 @@ private network to the Mac running BT OS:
    it on login.
 3. On the phone, open `http://<mac-name>:3000` (the machine name shown
    in the Tailscale app — MagicDNS resolves it from anywhere).
-4. Add it to your home screen — the UI is mobile-optimized with a
-   floating quick-capture button.
+4. Add it to your home screen — the UI is mobile-optimized (bottom tab
+   bar, safe-area-aware, full-screen modals) with a raised capture button.
 
 Notes: the Mac must be awake for access (System Settings → Battery →
 prevent sleeping when plugged in helps); Google's OAuth consent for
@@ -67,7 +67,7 @@ AdSense should be done from the Mac itself since its redirect URI is
 
 ## Structure
 
-Two places in the sidebar:
+Three places in the sidebar:
 
 - **Home** (`/`) — large greeting, then a packed top band of equal-height
   tiles: the day-based to-do (carries forward; ⭐ sets Top 3), a day-navigable
@@ -76,6 +76,10 @@ Two places in the sidebar:
   spans the full width beneath (week/month toggles, events in 15-minute
   increments, **multi-day events** for vacations, iCal feeds). (`/personal`
   redirects here.)
+- **Idea Bank** (`/ideas`) — a freeform catch-all for random thoughts: just a
+  title and open notes, persisted until you delete it (nothing archives or
+  moves on its own). Reachable from the sidebar, the bottom tab bar, and as
+  its own type in Quick Capture (⌘K / the mobile + button).
 - **Business** (`/business`) — one consolidated page; the sidebar sub-items
   (Overview / Content / Brand Deals) jump to sections:
   - **Live metrics** (Overview only): per-platform tiles (YouTube / Instagram
@@ -123,14 +127,26 @@ Two places in the sidebar:
   priorities (saved as Monday tasks).
 
 **Quick capture**: ⌘K / Ctrl+K anywhere — tasks (land on today's list),
-events, content ideas, deal leads. On phones a floating **+** button
-opens the same capture sheet (modals go full-screen below the md
-breakpoint; the sidebar collapses to an icon rail).
+events, content ideas, deal leads, or idea bank entries.
+
+**Mobile** (below the `md` breakpoint, e.g. saved to an iPhone home screen):
+the sidebar is replaced by a bottom tab bar (Home / Ideas / raised **+**
+capture / Business / **More** → Research, Weekly review, Settings — a
+slide-up sheet); every modal goes edge-to-edge full-screen instead of a
+centered card; layout respects the iPhone notch and home-indicator safe
+areas (`viewport-fit=cover` + `env(safe-area-inset-*)`); and inputs render
+at 16px so Safari never zooms the page in on focus. Modals render via a
+React portal straight to `<body>` — nesting one inside an animated page
+wrapper (`.fade-up`'s `transform` leaves a resolved value behind after the
+entrance animation) would otherwise make that wrapper the fixed-position
+containing block and shrink the modal to fit inside it instead of the
+viewport.
 
 ## Data model (SQLite, `lib/db.ts`, migrations via `user_version`)
 
 `todos`, `content_items` (idea→done board incl. script/tags; YouTube sync),
-`deals` + `deal_files`, `adsense`, `expenses`, `weekly_reviews`, `events`
+`ideas` (idea bank — title/notes, kept until deleted), `deals` +
+`deal_files`, `adsense`, `affiliate`, `expenses`, `weekly_reviews`, `events`
 (ICS cache), `local_events`, `social_stats`, `settings`. Alerts are derived
 (`lib/alerts.ts`) — fixing the record clears the alert. Formatting is
 centralized in `lib/format.ts` (local timezone).

@@ -67,6 +67,19 @@ body {
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   font-feature-settings: "tnum";
+  /* no gray flash on tap when saved to the home screen as a standalone app */
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* iOS Safari zooms the page in when a focused input's font-size is < 16px —
+   jarring in a "saved to home screen" quick-capture flow. Match the desktop
+   look everywhere else by only bumping size on phones. */
+@media (max-width: 767px) {
+  input,
+  textarea,
+  select {
+    font-size: 16px;
+  }
 }
 
 ::selection {
