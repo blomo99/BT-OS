@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   Card,
   CardHeader,
@@ -55,6 +55,101 @@ const FORMATS = [
 
 type Goals = Record<string, number>;
 const DEFAULT_GOALS: Goals = { short: 3, long: 1, carousel: 0, newsletter: 0 };
+
+const STAGE_LABEL: Record<string, string> = Object.fromEntries(STAGES.map((s) => [s.key, s.label]));
+
+/** RFC4180: always quote, double any embedded quotes. */
+function csvCell(v: string | number | null | undefined): string {
+  return `"${String(v ?? "").replace(/"/g, '""')}"`;
+}
+
+function downloadCSV(rows: (string | number | null)[][], filename: string) {
+  const csv = rows.map((r) => r.map(csvCell).join(",")).join("\r\n");
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+/** Board-header export control: ideas as a CSV backup, or scripted ideas as
+ *  one printable/PDF-able document — both scoped to what's on screen. */
+function ExportMenu({ items }: { items: ContentItem[] }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+  const scriptedCount = items.filter((i) => i.script?.trim()).length;
+
+  useEffect(() => {
+    if (!open) return;
+    const onDown = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    };
+    window.addEventListener("mousedown", onDown);
+    return () => window.removeEventListener("mousedown", onDown);
+  }, [open]);
+
+  const exportCSV = () => {
+    const header = [
+      "Title", "Format", "Stage", "Target date", "Published date",
+      "Sponsor", "Tags", "Hook", "Notes", "Script",
+    ];
+    const rows = items.map((i) => [
+      i.title,
+      i.format,
+      STAGE_LABEL[i.status] ?? i.status,
+      i.target_date,
+      i.published_date,
+      i.sponsor_brand,
+      i.tags,
+      i.hook,
+      i.notes,
+      i.script,
+    ]);
+    downloadCSV([header, ...rows], `btos-content-ideas-${toDateStr(new Date())}.csv`);
+    setOpen(false);
+  };
+
+  const exportScripts = () => {
+    const ids = items.filter((i) => i.script?.trim()).map((i) => i.id);
+    if (!ids.length) return;
+    window.open(`/script/export?ids=${ids.join(",")}`, "_blank");
+    setOpen(false);
+  };
+
+  return (
+    <div className="relative" ref={ref}>
+      <TextButton onClick={() => setOpen((v) => !v)} className="border border-line">
+        Export
+      </TextButton>
+      {open && (
+        <div className="absolute right-0 top-full z-20 mt-1 w-56 overflow-hidden rounded-lg border border-line bg-card-2 py-1 shadow-2xl">
+          <button
+            onClick={exportCSV}
+            disabled={items.length === 0}
+            className="flex w-full flex-col items-start px-3 py-2 text-left text-[12.5px] text-ink hover:bg-card-3 disabled:opacity-40 disabled:hover:bg-transparent"
+          >
+            <span>Export ideas (CSV)</span>
+            <span className="text-[10.5px] text-ink-3">
+              {items.length} idea{items.length === 1 ? "" : "s"} in view · spreadsheet backup
+            </span>
+          </button>
+          <button
+            onClick={exportScripts}
+            disabled={scriptedCount === 0}
+            className="flex w-full flex-col items-start px-3 py-2 text-left text-[12.5px] text-ink hover:bg-card-3 disabled:opacity-40 disabled:hover:bg-transparent"
+          >
+            <span>Export scripts (PDF)</span>
+            <span className="text-[10.5px] text-ink-3">
+              {scriptedCount ? `${scriptedCount} scripted idea${scriptedCount === 1 ? "" : "s"} · one document` : "No scripts in view yet"}
+            </span>
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
 
 /**
  * Unified content board: raw ideas through finished videos in one 4-stage
@@ -232,6 +327,7 @@ export default function ContentPipeline() {
               <TextButton onClick={() => setShowArchived(!showArchived)}>
                 {showArchived ? "Back to board" : `Archive${archived.length ? ` · ${archived.length}` : ""}`}
               </TextButton>
+              <ExportMenu items={showArchived ? archived : visible.filter((i) => i.status !== "archived")} />
               <PrimaryButton onClick={() => setEditing("new")} className="!py-1">
                 + New idea
               </PrimaryButton>

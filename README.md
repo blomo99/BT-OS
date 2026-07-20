@@ -98,9 +98,15 @@ Three places in the sidebar:
     script from the title/hook/notes — needs the Anthropic API key in
     Settings; **Export PDF** opens the saved script at `/script/[id]` as a
     Word-style document (white page, headings, print CSS) — hit "Save as
-    PDF" in the print dialog; weekly output goals on top; YouTube uploads auto-detected
-    (short vs long), TikTok/Instagram posts detected via post-count changes;
-    Done auto-archives after N days.
+    PDF" in the print dialog. The board header's **Export** menu covers the
+    bulk case: **ideas (CSV)** downloads every idea currently in view (or in
+    the Archive, when that's open) — title, format, stage, dates, sponsor,
+    tags, hook, notes, and the full script text, spreadsheet-ready — and
+    **scripts (PDF)** opens `/script/export?ids=…` with every scripted idea
+    in view as one Word-style document, one per page, ready to print or save
+    as a single PDF. Weekly output goals on top; YouTube uploads
+    auto-detected (short vs long), TikTok/Instagram posts detected via
+    post-count changes; Done auto-archives after N days.
   - **Brand Deals**: 13-stage sponsorship CRM (next actions, contracts,
     invoices, files). **Total collected = paid sponsorships + AdSense +
     affiliate** (sponsorships count only once paid; AdSense syncs via Google
