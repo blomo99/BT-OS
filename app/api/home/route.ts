@@ -121,6 +121,9 @@ export async function GET() {
       tasksDone: tasksDoneWeek.n,
       contentDone,
       contentGoal: contentGoalTotal,
+      // broken out so Home can show "1/3 short · 0/1 long" instead of one blended count
+      short: { done: publishedByFormat.short ?? 0, goal: goals.short ?? 0 },
+      long: { done: publishedByFormat.long ?? 0, goal: goals.long ?? 0 },
     },
   });
 }

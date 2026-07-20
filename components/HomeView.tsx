@@ -20,11 +20,18 @@ import {
 type Deadline = { title: string; due_date: string; type: string; href: string };
 type Alert = { id: string; severity: string; text: string; href: string; action: string };
 
+type FormatCount = { done: number; goal: number };
 type HomeData = {
   doneToday: number;
   deadlines: Deadline[];
   alerts: Alert[];
-  week: { tasksDone: number; contentDone: number; contentGoal: number };
+  week: {
+    tasksDone: number;
+    contentDone: number;
+    contentGoal: number;
+    short: FormatCount;
+    long: FormatCount;
+  };
 };
 
 const SEVERITY_DOT: Record<string, string> = {
@@ -65,7 +72,8 @@ export default function HomeView() {
           {data && (
             <span className="text-ink-3">
               {" "}· {data.doneToday} done today · {data.week.tasksDone} this week
-              {" "}· {data.week.contentDone}/{data.week.contentGoal} videos
+              {" "}· {data.week.short.done}/{data.week.short.goal} shorts
+              {" "}· {data.week.long.done}/{data.week.long.goal} long
             </span>
           )}
         </p>
@@ -160,17 +168,24 @@ export default function HomeView() {
             <Skeleton rows={2} />
           ) : (
             <div className="px-5 pb-4">
-              <div className="flex gap-6">
+              <div className="flex gap-5">
                 <div>
                   <p className="text-2xl font-semibold tabular-nums">{data.week.tasksDone}</p>
                   <p className="text-[11px] text-ink-2">tasks done</p>
                 </div>
                 <div>
                   <p className="text-2xl font-semibold tabular-nums">
-                    {data.week.contentDone}
-                    <span className="text-base text-ink-3">/{data.week.contentGoal}</span>
+                    {data.week.short.done}
+                    <span className="text-base text-ink-3">/{data.week.short.goal}</span>
                   </p>
-                  <p className="text-[11px] text-ink-2">videos done</p>
+                  <p className="text-[11px] text-ink-2">short-form</p>
+                </div>
+                <div>
+                  <p className="text-2xl font-semibold tabular-nums">
+                    {data.week.long.done}
+                    <span className="text-base text-ink-3">/{data.week.long.goal}</span>
+                  </p>
+                  <p className="text-[11px] text-ink-2">long-form</p>
                 </div>
               </div>
               {/* upload-goal progress, matching the content board bar */}

@@ -72,10 +72,13 @@ Three places in the sidebar:
 - **Home** (`/`) — large greeting, then a packed top band of equal-height
   tiles: the day-based to-do (carries forward; ⭐ sets Top 3), a day-navigable
   **Schedule** (arrows to any day), and a rail with Business attention /
-  Coming up / this-week stats (with an upload-goal progress bar). The calendar
-  spans the full width beneath (week/month toggles, events in 15-minute
-  increments, **multi-day events** for vacations, iCal feeds). (`/personal`
-  redirects here.)
+  Coming up / **this-week stats broken out by short-form and long-form**
+  (e.g. "2/3 short-form · 0/1 long-form", each with its own progress). The
+  calendar spans the full width beneath — week/month toggles with events in
+  15-minute increments and **multi-day events** for vacations on desktop;
+  on phones it's a flat 60-day **agenda list** instead (a 7-column grid
+  doesn't fit a phone width, and "what's coming up" is what an agenda is
+  for). iCal feeds import into either view. (`/personal` redirects here.)
 - **Idea Bank** (`/ideas`) — a freeform catch-all for random thoughts: just a
   title and open notes, persisted until you delete it (nothing archives or
   moves on its own). Reachable from the sidebar, the bottom tab bar, and as
@@ -96,8 +99,9 @@ Three places in the sidebar:
     overdue tasks, or an at-risk weekly goal) beside a **Revenue** strip
     (collected / outstanding / contracted / pipeline / net, with the full
     panel behind "Details").
-  - **Content board**: **Raw idea → Scripting → Ready to film → Done** with
-    a full-page script editor per card; **Generate with AI** in the script
+  - **Content board**: **Raw idea → Scripting → Ready to film → Done**,
+    filterable by All / Short / Long / **Carousel**, with a full-page
+    script editor per card; **Generate with AI** in the script
     editor has Claude (as a YouTube scripting pro) draft a ready-to-film
     script from the title/hook/notes — needs the Anthropic API key in
     Settings; **Export PDF** opens the saved script at `/script/[id]` as a
@@ -178,7 +182,9 @@ centralized in `lib/format.ts` (local timezone).
 - **Affiliate (Impact Radius)**: Account SID + Auth token in Settings →
   monthly commissions sync from the Impact Actions API (also loggable by hand).
 - **Research**: Google autocomplete, Reddit RSS, and YouTube search — all
-  anonymous public sources, cached 1h. No keys required. Optionally add an
+  anonymous public sources, cached 48h (refreshes every other day — trends
+  don't move fast enough to justify hitting these more often, and it's
+  gentler on the sources). No keys required. Optionally add an
   Anthropic API key in Settings to have the "Videos to make next" concepts
   written by Claude (`lib/strategist.ts`, cached 6h).
 

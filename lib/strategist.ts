@@ -4,7 +4,7 @@ import { zodOutputFormat } from "@anthropic-ai/sdk/helpers/zod";
 import { getSetting, setSetting } from "@/lib/db";
 import type { ResearchResult } from "@/lib/research";
 
-const CACHE_TTL_MS = 6 * 60 * 60 * 1000; // 6h — suggestions cost tokens; refresh regenerates
+const CACHE_TTL_MS = 48 * 60 * 60 * 1000; // matches research.ts — no point re-asking Claude about the same trend data sooner
 
 export type VideoSuggestion = {
   title: string;

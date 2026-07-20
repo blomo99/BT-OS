@@ -107,7 +107,16 @@ export default function Research() {
     window.dispatchEvent(new Event("btos:data-changed"));
   };
 
-  const fetchedAgo = data ? Math.round((Date.now() - data.fetchedAt) / 60000) : 0;
+  // refreshes every other day, so "Nm ago" alone stops being readable — scale the unit
+  const fetchedAgoLabel = (() => {
+    if (!data) return "";
+    const mins = Math.round((Date.now() - data.fetchedAt) / 60000);
+    if (mins < 1) return "just now";
+    if (mins < 60) return `${mins}m ago`;
+    const hours = Math.round(mins / 60);
+    if (hours < 24) return `${hours}h ago`;
+    return `${Math.round(hours / 24)}d ago`;
+  })();
 
   return (
     <div className="fade-up mx-auto max-w-6xl space-y-5">
@@ -117,7 +126,7 @@ export default function Research() {
           <h1 className="text-2xl font-semibold tracking-tight">Research</h1>
           <p className="mt-1 text-[13px] text-ink-2">
             Trending topics and top-performing videos in your niche
-            {data && <span className="text-ink-3"> · updated {fetchedAgo < 1 ? "just now" : `${fetchedAgo}m ago`}</span>}
+            {data && <span className="text-ink-3"> · updated {fetchedAgoLabel}</span>}
           </p>
         </div>
         <IconButton label="Refresh research" onClick={() => load(true)}>

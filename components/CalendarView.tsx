@@ -289,6 +289,54 @@ export default function CalendarView() {
     );
   };
 
+  /** Mobile: a flat chronological list instead of a grid — a 7×6 month grid
+   *  is unreadable at phone width, and this is what people actually want
+   *  from a phone calendar: "what's coming up". */
+  const renderAgenda = () => {
+    const days = Array.from({ length: 60 }, (_, i) => addDaysStr(todayStr, i)).filter(
+      (d) => (byDay.get(d) ?? []).length > 0
+    );
+    return (
+      <div className="px-5 pb-5">
+        {days.length === 0 ? (
+          <p className="py-6 text-center text-xs text-ink-3">Nothing on the calendar in the next 60 days.</p>
+        ) : (
+          <ul className="divide-y divide-line/60">
+            {days.map((d) => (
+              <li key={d} className="py-2.5">
+                <p className={`mb-1.5 text-[11px] font-medium uppercase tracking-wide ${d === todayStr ? "text-accent-2" : "text-ink-3"}`}>
+                  {d === todayStr
+                    ? "Today"
+                    : d === addDaysStr(todayStr, 1)
+                      ? "Tomorrow"
+                      : fromDateStr(d).toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" })}
+                </p>
+                <ul className="space-y-1.5">
+                  {(byDay.get(d) ?? []).map((e) => (
+                    <li key={`${e.local}-${e.id}`} className="flex items-center gap-2.5 text-[13px]">
+                      <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${feedDot.get(e.feed_name) ?? "bg-accent"}`} />
+                      <span className="min-w-0 flex-1 truncate">{e.title}</span>
+                      {e.span && <span className="shrink-0 rounded bg-card-2 px-1.5 py-0.5 text-[10px] text-ink-3">{e.span}</span>}
+                      <span className="shrink-0 text-xs text-ink-3">{e.span ? "" : e.all_day ? "all day" : fmtTime(e.start)}</span>
+                      {e.local === 1 && (
+                        // always visible (not hover-gated): touch has no hover state
+                        <button onClick={() => removeEvent(e.id)} aria-label="Delete event" className="shrink-0 text-ink-3 active:text-danger">
+                          <svg width="11" height="11" viewBox="0 0 14 14" fill="none">
+                            <path d="M3 3l8 8M11 3l-8 8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                          </svg>
+                        </button>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+    );
+  };
+
   const nav = (delta: number) => {
     const d = new Date(year, month + delta, 1);
     setYear(d.getFullYear());
@@ -302,7 +350,7 @@ export default function CalendarView() {
         title="Calendar"
         right={
           <div className="flex items-center gap-1.5">
-            <div className="flex items-center rounded-md border border-line p-0.5" role="tablist" aria-label="Calendar view">
+            <div className="hidden items-center rounded-md border border-line p-0.5 md:flex" role="tablist" aria-label="Calendar view">
               {(["week", "month"] as Mode[]).map((m) => (
                 <button
                   key={m}
@@ -340,8 +388,11 @@ export default function CalendarView() {
         </p>
       )}
 
-      {mode === "week" && renderWeek()}
-      {mode === "month" && renderMonth()}
+      <div className="md:hidden">{renderAgenda()}</div>
+      <div className="hidden md:block">
+        {mode === "week" && renderWeek()}
+        {mode === "month" && renderMonth()}
+      </div>
 
       {feeds.length > 0 && (
         <div className="flex flex-wrap gap-3 px-5 pb-4">

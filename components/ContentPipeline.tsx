@@ -159,7 +159,7 @@ export default function ContentPipeline() {
   const [items, setItems] = useState<ContentItem[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [archiveDays, setArchiveDays] = useState(14);
-  const [formatFilter, setFormatFilter] = useState<"all" | "short" | "long">("all");
+  const [formatFilter, setFormatFilter] = useState<"all" | "short" | "long" | "carousel">("all");
   const [showArchived, setShowArchived] = useState(false);
   const [editing, setEditing] = useState<ContentItem | "new" | null>(null);
   const [goals, setGoals] = useState<Goals>(DEFAULT_GOALS);
@@ -211,8 +211,9 @@ export default function ContentPipeline() {
 
   const visible = useMemo(() => {
     let all = items ?? [];
-    if (formatFilter === "short") all = all.filter((i) => ["short", "carousel"].includes(i.format));
+    if (formatFilter === "short") all = all.filter((i) => i.format === "short");
     if (formatFilter === "long") all = all.filter((i) => ["long", "newsletter"].includes(i.format));
+    if (formatFilter === "carousel") all = all.filter((i) => i.format === "carousel");
     return all;
   }, [items, formatFilter]);
 
@@ -307,33 +308,32 @@ export default function ContentPipeline() {
         <CardHeader
           title={showArchived ? "Archive" : "Idea board"}
           hint={showArchived ? `auto-archived ${archiveDays} days after done` : undefined}
-          right={
-            <div className="flex items-center gap-1.5">
-              <div className="flex items-center rounded-md border border-line p-0.5" role="tablist" aria-label="Format filter">
-                {([["all", "All"], ["short", "Short"], ["long", "Long"]] as const).map(([k, label]) => (
-                  <button
-                    key={k}
-                    role="tab"
-                    aria-selected={formatFilter === k}
-                    onClick={() => setFormatFilter(k)}
-                    className={`rounded px-2 py-0.5 text-[11px] transition-colors ${
-                      formatFilter === k ? "bg-card-2 text-ink" : "text-ink-3 hover:text-ink-2"
-                    }`}
-                  >
-                    {label}
-                  </button>
-                ))}
-              </div>
-              <TextButton onClick={() => setShowArchived(!showArchived)}>
-                {showArchived ? "Back to board" : `Archive${archived.length ? ` · ${archived.length}` : ""}`}
-              </TextButton>
-              <ExportMenu items={showArchived ? archived : visible.filter((i) => i.status !== "archived")} />
-              <PrimaryButton onClick={() => setEditing("new")} className="!py-1">
-                + New idea
-              </PrimaryButton>
-            </div>
-          }
         />
+
+        <div className="flex flex-wrap items-center gap-1.5 px-5 pb-3">
+          <div className="flex items-center rounded-md border border-line p-0.5" role="tablist" aria-label="Format filter">
+            {([["all", "All"], ["short", "Short"], ["long", "Long"], ["carousel", "Carousel"]] as const).map(([k, label]) => (
+              <button
+                key={k}
+                role="tab"
+                aria-selected={formatFilter === k}
+                onClick={() => setFormatFilter(k)}
+                className={`rounded px-2 py-0.5 text-[11px] transition-colors ${
+                  formatFilter === k ? "bg-card-2 text-ink" : "text-ink-3 hover:text-ink-2"
+                }`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+          <TextButton onClick={() => setShowArchived(!showArchived)}>
+            {showArchived ? "Back to board" : `Archive${archived.length ? ` · ${archived.length}` : ""}`}
+          </TextButton>
+          <ExportMenu items={showArchived ? archived : visible.filter((i) => i.status !== "archived")} />
+          <PrimaryButton onClick={() => setEditing("new")} className="!py-1 ml-auto max-md:ml-0">
+            + New idea
+          </PrimaryButton>
+        </div>
 
         {error && (
           <div className="mx-5 mb-3 flex items-center justify-between gap-3 rounded-md border border-warn/30 bg-warn-soft px-3 py-2">
@@ -374,7 +374,7 @@ export default function ContentPipeline() {
             </ul>
           )
         ) : (
-          <div className="grid grid-cols-1 gap-3 px-5 pb-5 sm:grid-cols-2 xl:grid-cols-4">
+          <div className="grid grid-cols-1 gap-3 px-5 pb-5 md:grid-cols-2 xl:grid-cols-4">
             {STAGES.map((stage) => {
               const list = visible.filter((i) => i.status === stage.key);
               return (
@@ -429,7 +429,8 @@ export default function ContentPipeline() {
                             }}
                             title={`Move to ${STAGES[STAGES.findIndex((s) => s.key === stage.key) + 1]?.label}`}
                             aria-label="Advance stage"
-                            className="mt-1.5 hidden w-full rounded-md border border-line py-1 text-[11px] text-ink-2 hover:border-accent hover:text-accent-2 transition-colors group-hover:block"
+                            // always visible on touch (no :hover there); desktop keeps the hover-reveal
+                            className="mt-1.5 block w-full rounded-md border border-line py-1 text-[11px] text-ink-2 hover:border-accent hover:text-accent-2 transition-colors md:hidden md:group-hover:block"
                           >
                             {STAGES[STAGES.findIndex((s) => s.key === stage.key) + 1]?.label} →
                           </button>

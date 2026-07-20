@@ -3,7 +3,7 @@ import { getSetting, setSetting } from "@/lib/db";
 const UA =
   "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36";
 
-const CACHE_TTL_MS = 60 * 60 * 1000; // 1h — trends move slowly, be a polite scraper
+const CACHE_TTL_MS = 48 * 60 * 60 * 1000; // every other day — trends move slowly, be a polite scraper
 
 export type IdeaSource = "google" | "reddit" | "youtube";
 export type IdeaHeat = "hot" | "warm" | "cool";
