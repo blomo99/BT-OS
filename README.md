@@ -79,7 +79,11 @@ Three places in the sidebar:
 - **Idea Bank** (`/ideas`) — a freeform catch-all for random thoughts: just a
   title and open notes, persisted until you delete it (nothing archives or
   moves on its own). Reachable from the sidebar, the bottom tab bar, and as
-  its own type in Quick Capture (⌘K / the mobile + button).
+  its own type in Quick Capture (⌘K / the mobile + button). The Notes field
+  is a Notion-style rich text editor (Tiptap): type `# `/`## `/`### ` for
+  headings, `**bold**`/`*italic*` or ⌘B/⌘I inline, ⌘U or the toolbar for
+  underline — same shortcuts, same no-shortcut-for-underline behavior as
+  Notion itself. Notes are stored as HTML; card previews show plain text.
 - **Business** (`/business`) — one consolidated page; the sidebar sub-items
   (Overview / Content / Brand Deals) jump to sections:
   - **Live metrics** (Overview only): per-platform tiles (YouTube / Instagram

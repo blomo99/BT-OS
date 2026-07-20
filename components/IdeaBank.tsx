@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   Card,
   EmptyState,
@@ -11,6 +11,8 @@ import {
   TextButton,
   inputCls,
 } from "@/components/ui";
+import RichTextEditor from "@/components/RichTextEditor";
+import { htmlToPreviewText } from "@/lib/richText";
 
 type Idea = {
   id: number;
@@ -82,9 +84,9 @@ export default function IdeaBank() {
                   <h3 className="min-w-0 flex-1 text-[14px] font-medium leading-snug">{idea.title}</h3>
                   <span className="shrink-0 text-[10.5px] text-ink-3">{fmtWhen(idea.created_at)}</span>
                 </div>
-                {idea.notes && (
-                  <p className="line-clamp-4 whitespace-pre-wrap text-[12.5px] leading-relaxed text-ink-2">
-                    {idea.notes}
+                {idea.notes && htmlToPreviewText(idea.notes) && (
+                  <p className="line-clamp-4 text-[12.5px] leading-relaxed text-ink-2">
+                    {htmlToPreviewText(idea.notes)}
                   </p>
                 )}
               </button>
@@ -115,17 +117,25 @@ function IdeaEditor({
   onSaved: () => void;
 }) {
   const [title, setTitle] = useState("");
-  const [notes, setNotes] = useState("");
   const [saving, setSaving] = useState(false);
   const isNew = idea === "new";
+  // notes lives in a ref, not state: RichTextEditor only reads its `content`
+  // prop once (at mount) to seed the doc, so the initial value must be
+  // correct on the very first render. Routing it through a reset-effect +
+  // state (the way `title` does it) has a one-tick gap where the fresh
+  // editor mounts and reads the *previous* idea's notes before the effect
+  // clears it — the editor bakes that stale value in and never sees the
+  // correction. Effects are still fine for the ref since nothing reads it
+  // until the user clicks Save, long after the effect has run.
+  const notesRef = useRef("");
 
   useEffect(() => {
     if (idea === "new") {
       setTitle("");
-      setNotes("");
+      notesRef.current = "";
     } else if (idea) {
       setTitle(idea.title);
-      setNotes(idea.notes ?? "");
+      notesRef.current = idea.notes ?? "";
     }
   }, [idea]);
 
@@ -134,6 +144,7 @@ function IdeaEditor({
   const save = async () => {
     if (!title.trim()) return;
     setSaving(true);
+    const notes = notesRef.current;
     await fetch("/api/ideas", {
       method: isNew ? "POST" : "PATCH",
       headers: { "Content-Type": "application/json" },
@@ -166,11 +177,14 @@ function IdeaEditor({
           />
         </Field>
         <Field label="Notes">
-          <textarea
-            className={`${inputCls} min-h-[35vh] resize-y leading-relaxed`}
-            value={notes}
-            onChange={(e) => setNotes(e.target.value)}
-            placeholder="Anything else — details, context, links…"
+          <RichTextEditor
+            key={isNew ? "new" : (idea as Idea).id}
+            content={isNew ? "" : (idea as Idea).notes ?? ""}
+            onChange={(html) => {
+              notesRef.current = html;
+            }}
+            placeholder="Anything else — details, context, links… (# for a heading, **bold**, *italic*, ⌘U to underline)"
+            minHeight="35vh"
           />
         </Field>
         <div className="flex items-center justify-between border-t border-line pt-3">
