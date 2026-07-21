@@ -101,10 +101,14 @@ Three places in the sidebar:
     panel behind "Details").
   - **Content board**: **Raw idea → Scripting → Ready to film → Done**,
     filterable by All / Short / Long / **Carousel**, with a full-page
-    script editor per card; **Generate with AI** in the script
-    editor has Claude (as a YouTube scripting pro) draft a ready-to-film
-    script from the title/hook/notes — needs the Anthropic API key in
-    Settings; **Export PDF** opens the saved script at `/script/[id]` as a
+    editor per card. **Script and Notes are the same Notion-style rich
+    text editor as Idea Bank** (headings, bold, italic, underline — toolbar
+    or `# `/`**bold**`/`*italic*`/⌘U); **Generate with AI** has Claude (as
+    a YouTube scripting pro) draft a ready-to-film script from the
+    title/hook/notes, which lands already formatted with real headings —
+    needs the Anthropic API key in Settings. Older plain-text scripts
+    self-upgrade into real formatting the first time they're opened.
+    **Export PDF** opens the saved script at `/script/[id]` as a
     Word-style document (white page, headings, print CSS) — hit "Save as
     PDF" in the print dialog. The board header's **Export** menu covers the
     bulk case: **ideas (CSV)** downloads every idea currently in view (or in

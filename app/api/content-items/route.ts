@@ -42,8 +42,8 @@ export async function POST(req: NextRequest) {
   const info = getDb()
     .prepare(
       `INSERT INTO content_items (title, platform, format, pillar, status, hook,
-         target_date, deal_id, cta, links, notes)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+         target_date, deal_id, cta, links, notes, script, tags, metrics)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
     )
     .run(
       b.title.trim(),
@@ -56,7 +56,10 @@ export async function POST(req: NextRequest) {
       b.deal_id ?? null,
       b.cta || null,
       b.links || null,
-      b.notes || null
+      b.notes || null,
+      b.script || null,
+      b.tags || null,
+      b.metrics || null
     );
   return NextResponse.json({ id: info.lastInsertRowid }, { status: 201 });
 }

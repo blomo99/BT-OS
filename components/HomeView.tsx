@@ -224,8 +224,9 @@ export default function HomeView() {
         </div>
       </div>
 
-      {/* calendar spans the full width along the bottom */}
-      <div className="mt-4">
+      {/* calendar spans the full width along the bottom — desktop only;
+          Schedule (top band) already covers the day-to-day view on phones */}
+      <div className="mt-4 hidden md:block">
         <CalendarView />
       </div>
     </div>
@@ -294,7 +295,7 @@ function DaySchedule() {
         ) : events.length === 0 ? (
           <EmptyState
             title="Nothing scheduled"
-            body={date === today ? "Your day is clear — add an event from the calendar below or ⌘K." : "No events this day."}
+            body={date === today ? "Your day is clear — add an event with ⌘K or the + button." : "No events this day."}
           />
         ) : (
           <ul className="space-y-2">

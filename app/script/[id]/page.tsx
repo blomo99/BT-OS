@@ -1,5 +1,5 @@
 import { getDb } from "@/lib/db";
-import { DOC_PRINT_CSS, ScriptBlocks, parseScript } from "@/lib/scriptDoc";
+import { DOC_PRINT_CSS, scriptTextToHTML } from "@/lib/scriptDoc";
 import PrintToolbar from "../PrintToolbar";
 
 export const dynamic = "force-dynamic";
@@ -22,7 +22,7 @@ export default async function ScriptDocPage({ params }: { params: Promise<{ id: 
     .get(Number(id)) as Item | undefined;
 
   const fmtLabel = item?.format === "long" ? "Long-form video script" : "Short-form video script";
-  const blocks = item?.script ? parseScript(item.script) : [];
+  const html = item?.script ? scriptTextToHTML(item.script) : "";
 
   return (
     <div className="doc-root">
@@ -51,10 +51,10 @@ export default async function ScriptDocPage({ params }: { params: Promise<{ id: 
               </>
             )}
 
-            {blocks.length === 0 ? (
+            {!html ? (
               <p className="doc-empty">No script written yet — open the idea on the content board and draft one (or hit Generate with AI).</p>
             ) : (
-              <ScriptBlocks blocks={blocks} />
+              <div className="script-html" dangerouslySetInnerHTML={{ __html: html }} />
             )}
 
             <p className="doc-footer">

@@ -17,6 +17,9 @@ import {
   addDaysStr,
 } from "@/components/ui";
 import { mondayOf } from "@/lib/format";
+import RichTextEditor from "@/components/RichTextEditor";
+import { ensureHTML, htmlToPreviewText } from "@/lib/richText";
+import { scriptTextToHTML } from "@/lib/scriptDoc";
 
 export type ContentItem = {
   id: number;
@@ -104,8 +107,8 @@ function ExportMenu({ items }: { items: ContentItem[] }) {
       i.sponsor_brand,
       i.tags,
       i.hook,
-      i.notes,
-      i.script,
+      i.notes ? htmlToPreviewText(i.notes) : i.notes,
+      i.script ? htmlToPreviewText(i.script) : i.script,
     ]);
     downloadCSV([header, ...rows], `btos-content-ideas-${toDateStr(new Date())}.csv`);
     setOpen(false);
@@ -521,13 +524,26 @@ function ContentEditor({
   const [f, setF] = useState<Record<string, string>>({});
   const [deals, setDeals] = useState<{ id: number; brand: string }[]>([]);
   const [genState, setGenState] = useState<{ busy: boolean; error: string | null }>({ busy: false, error: null });
+  // bumped after AI generation to force the Script editor to remount with
+  // the fresh content (it only reads `content` at mount, same as below)
+  const [genNonce, setGenNonce] = useState(0);
   const isNew = item === "new";
+  // script/notes live in refs, not `f`: RichTextEditor only reads its
+  // `content` prop once at mount, but `f` is populated by this effect one
+  // tick *after* render — a freshly (re)mounted editor would read the
+  // previous item's value before the effect corrects it, and since Tiptap
+  // only seeds content at mount, that stale value would stick permanently.
+  // (Same race, same fix, as Idea Bank's notes field.)
+  const scriptRef = useRef("");
+  const notesRef = useRef("");
 
   useEffect(() => {
     if (!item) return;
     fetch("/api/deals").then((r) => r.json()).then((j) => setDeals(j.deals));
     if (item === "new") {
       setF({ format: "short", status: "idea" });
+      scriptRef.current = "";
+      notesRef.current = "";
     } else {
       setF({
         title: item.title,
@@ -535,13 +551,13 @@ function ContentEditor({
         status: item.status,
         hook: item.hook ?? "",
         tags: item.tags ?? "",
-        script: item.script ?? "",
         target_date: item.target_date ?? "",
         published_date: item.published_date ?? "",
         deal_id: item.deal_id?.toString() ?? "",
-        notes: item.notes ?? "",
         metrics: item.metrics ?? "",
       });
+      scriptRef.current = item.script ?? "";
+      notesRef.current = item.notes ?? "";
     }
   }, [item]);
 
@@ -554,20 +570,27 @@ function ContentEditor({
       setGenState({ busy: false, error: "Give the idea a title first." });
       return;
     }
-    if (f.script?.trim() && !confirm("Replace the current script with an AI draft?")) return;
+    if (scriptRef.current.trim() && !confirm("Replace the current script with an AI draft?")) return;
     setGenState({ busy: true, error: null });
     try {
       const res = await fetch("/api/generate-script", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title: f.title, format: f.format ?? "short", hook: f.hook, notes: f.notes, tags: f.tags }),
+        body: JSON.stringify({
+          title: f.title,
+          format: f.format ?? "short",
+          hook: f.hook,
+          notes: htmlToPreviewText(notesRef.current),
+          tags: f.tags,
+        }),
       });
       const json = await res.json();
       if (!res.ok) {
         setGenState({ busy: false, error: json.error ?? "Script generation failed." });
         return;
       }
-      setF((prev) => ({ ...prev, script: json.script }));
+      scriptRef.current = scriptTextToHTML(json.script);
+      setGenNonce((n) => n + 1);
       setGenState({ busy: false, error: null });
     } catch {
       setGenState({ busy: false, error: "Script generation failed — is the server running?" });
@@ -578,6 +601,8 @@ function ContentEditor({
     if (!f.title?.trim()) return;
     const payload: Record<string, unknown> = {
       ...f,
+      script: scriptRef.current,
+      notes: notesRef.current,
       deal_id: f.deal_id ? Number(f.deal_id) : null,
     };
     if (f.status === "done" && !f.published_date) {
@@ -655,7 +680,15 @@ function ContentEditor({
                   </Field>
                 </div>
                 <Field label="Notes">
-                  <textarea className={`${inputCls} min-h-[72px] resize-y`} value={f.notes ?? ""} onChange={set("notes")} placeholder="References, b-roll, links…" />
+                  <RichTextEditor
+                    key={`notes-${isNew ? "new" : (item as ContentItem).id}`}
+                    content={isNew ? "" : ensureHTML((item as ContentItem).notes ?? "")}
+                    onChange={(html) => {
+                      notesRef.current = html;
+                    }}
+                    placeholder="References, b-roll, links…"
+                    minHeight="5rem"
+                  />
                 </Field>
               </>
             )}
@@ -696,11 +729,14 @@ function ContentEditor({
                 </button>
               </div>
             </div>
-            <textarea
-              className={`${inputCls} min-h-[56vh] resize-y leading-relaxed`}
-              value={f.script ?? ""}
-              onChange={set("script")}
-              placeholder={"HOOK:\n\nBODY:\n\nCTA:\n\n(or hit Generate with AI)"}
+            <RichTextEditor
+              key={`script-${isNew ? "new" : (item as ContentItem).id}-${genNonce}`}
+              content={isNew ? "" : scriptTextToHTML((item as ContentItem).script ?? "")}
+              onChange={(html) => {
+                scriptRef.current = html;
+              }}
+              placeholder="Start writing — # for a heading, **bold**, *italic*, ⌘U to underline (or hit Generate with AI)"
+              minHeight="56vh"
             />
           </div>
         </div>

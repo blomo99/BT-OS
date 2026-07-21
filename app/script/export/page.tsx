@@ -1,5 +1,5 @@
 import { getDb } from "@/lib/db";
-import { DOC_PRINT_CSS, ScriptBlocks, parseScript } from "@/lib/scriptDoc";
+import { DOC_PRINT_CSS, scriptTextToHTML } from "@/lib/scriptDoc";
 import PrintToolbar from "../PrintToolbar";
 
 export const dynamic = "force-dynamic";
@@ -58,7 +58,7 @@ export default async function ScriptBulkExportPage({
       ) : (
         items.map((item) => {
           const fmtLabel = item.format === "long" ? "Long-form video script" : "Short-form video script";
-          const blocks = item.script ? parseScript(item.script) : [];
+          const html = item.script ? scriptTextToHTML(item.script) : "";
           return (
             <div key={item.id} className="doc-page">
               <h1 className="doc-title">{item.title}</h1>
@@ -77,10 +77,10 @@ export default async function ScriptBulkExportPage({
                 </>
               )}
 
-              {blocks.length === 0 ? (
+              {!html ? (
                 <p className="doc-empty">No script written for this idea.</p>
               ) : (
-                <ScriptBlocks blocks={blocks} />
+                <div className="script-html" dangerouslySetInnerHTML={{ __html: html }} />
               )}
             </div>
           );
