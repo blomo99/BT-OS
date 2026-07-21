@@ -96,11 +96,13 @@ export default function RevenuePanel() {
     setAddExpense(false);
     setExp({ description: "", amount: "", date: "", category: "" });
     load();
+    window.dispatchEvent(new Event("btos:data-changed"));
   };
 
   const removeExpense = async (id: number) => {
     await fetch(`/api/revenue?id=${id}`, { method: "DELETE" });
     load();
+    window.dispatchEvent(new Event("btos:data-changed"));
   };
 
   const saveMonth = async () => {
@@ -117,11 +119,13 @@ export default function RevenuePanel() {
     setMonthKind(null);
     setMonthForm({ month: new Date().toISOString().slice(0, 7), amount: "" });
     load();
+    window.dispatchEvent(new Event("btos:data-changed"));
   };
 
   const removeMonth = async (kind: "adsense" | "affiliate", id: number) => {
     await fetch(`/api/revenue?${kind}_id=${id}`, { method: "DELETE" });
     load();
+    window.dispatchEvent(new Event("btos:data-changed"));
   };
 
   const s = data?.summary;
@@ -137,7 +141,9 @@ export default function RevenuePanel() {
       value: s?.adsense,
       sub: data?.adsenseSync?.connected
         ? "YouTube ad revenue · syncing"
-        : "not connected — nothing syncs yet",
+        : s?.adsense
+          ? "logged manually · included in totals below"
+          : "not connected — nothing syncs yet",
       tone: !data?.adsenseSync?.connected && !s?.adsense ? "text-ink-3" : undefined,
     },
     { label: "Affiliate", value: s?.affiliate, sub: "Impact total earnings (actions + other)" },
