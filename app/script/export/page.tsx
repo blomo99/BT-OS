@@ -1,5 +1,5 @@
 import { getDb } from "@/lib/db";
-import { DOC_PRINT_CSS, scriptTextToHTML } from "@/lib/scriptDoc";
+import { DOC_PRINT_CSS, DocHeader, scriptTextToHTML } from "@/lib/scriptDoc";
 import PrintToolbar from "../PrintToolbar";
 
 export const dynamic = "force-dynamic";
@@ -13,6 +13,7 @@ type Item = {
   tags: string | null;
   script: string | null;
   target_date: string | null;
+  sponsor_brand: string | null;
 };
 
 // GET /script/export?ids=3,7,12 — every listed idea's script as one printable
@@ -33,8 +34,11 @@ export default async function ScriptBulkExportPage({
     const placeholders = ids.map(() => "?").join(",");
     const rows = getDb()
       .prepare(
-        `SELECT id, title, format, status, hook, tags, script, target_date
-         FROM content_items WHERE id IN (${placeholders})`
+        `SELECT c.id, c.title, c.format, c.status, c.hook, c.tags, c.script, c.target_date,
+                d.brand AS sponsor_brand
+         FROM content_items c
+         LEFT JOIN deals d ON d.id = c.deal_id
+         WHERE c.id IN (${placeholders})`
       )
       .all(...ids) as Item[];
     // preserve the caller's order (board order), not SQLite's IN() order
@@ -57,25 +61,19 @@ export default async function ScriptBulkExportPage({
         </div>
       ) : (
         items.map((item) => {
-          const fmtLabel = item.format === "long" ? "Long-form video script" : "Short-form video script";
           const html = item.script ? scriptTextToHTML(item.script) : "";
           return (
             <div key={item.id} className="doc-page">
-              <h1 className="doc-title">{item.title}</h1>
-              <p className="doc-meta">
-                {fmtLabel}
-                {item.target_date ? ` · Target: ${item.target_date}` : ""}
-                {item.tags ? ` · ${item.tags}` : ""}
-                {" · @CyberWithBen"}
-              </p>
-              <hr className="doc-rule" />
-
-              {item.hook && (
-                <>
-                  <h2 className="doc-h2">Hook</h2>
-                  <p className="doc-hook">“{item.hook}”</p>
-                </>
-              )}
+              <DocHeader
+                meta={{
+                  title: item.title,
+                  format: item.format,
+                  targetDate: item.target_date,
+                  tags: item.tags,
+                  sponsorBrand: item.sponsor_brand,
+                  hook: item.hook,
+                }}
+              />
 
               {!html ? (
                 <p className="doc-empty">No script written for this idea.</p>
@@ -89,7 +87,7 @@ export default async function ScriptBulkExportPage({
 
       {items.length > 0 && (
         <p style={{ maxWidth: "8.5in", margin: "8px auto 24px", fontSize: 9, color: "#888", textAlign: "right" }}>
-          BT OS · {items.length} script{items.length > 1 ? "s" : ""} · exported{" "}
+          @CyberWithBen · {items.length} script{items.length > 1 ? "s" : ""} · exported{" "}
           {new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}
         </p>
       )}

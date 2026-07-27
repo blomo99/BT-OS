@@ -93,6 +93,52 @@ export function scriptTextToHTML(text: string): string {
   return blocksToHTML(parseScript(text));
 }
 
+export type DocMeta = {
+  title: string;
+  format: string;
+  targetDate?: string | null;
+  tags?: string | null;
+  sponsorBrand?: string | null;
+  hook?: string | null;
+};
+
+const FORMAT_LABEL: Record<string, string> = {
+  long: "Long-form video script",
+  carousel: "Carousel script",
+  newsletter: "Newsletter script",
+};
+
+/** Letterhead + title + sponsor badge + meta + hook callout — identical
+ *  across the single and bulk export, and the one thing a brand reviewer
+ *  skimming for approval looks at first (who it's for, what the opening
+ *  line is), so it's kept visually prominent rather than buried in the
+ *  meta line. */
+export function DocHeader({ meta }: { meta: DocMeta }) {
+  return (
+    <>
+      <div className="doc-letterhead">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/logo-dark.png" alt="" className="doc-logo" />
+        <span className="doc-brand">@CyberWithBen</span>
+      </div>
+      <h1 className="doc-title">{meta.title}</h1>
+      {meta.sponsorBrand && <p className="doc-sponsor">Sponsored content · {meta.sponsorBrand}</p>}
+      <p className="doc-meta">
+        {FORMAT_LABEL[meta.format] ?? "Short-form video script"}
+        {meta.targetDate ? ` · Target: ${meta.targetDate}` : ""}
+        {meta.tags ? ` · ${meta.tags}` : ""}
+      </p>
+      <hr className="doc-rule" />
+      {meta.hook && (
+        <div className="doc-hook-block">
+          <p className="doc-hook-label">Hook</p>
+          <p className="doc-hook">“{meta.hook}”</p>
+        </div>
+      )}
+    </>
+  );
+}
+
 /** document view is always light, regardless of app theme. `.doc-page` is
  *  reused per-item in the bulk export, with a page-break between each.
  *  `.script-html` scopes the injected rich-text body so its generic h1-h3
@@ -105,20 +151,33 @@ export const DOC_PRINT_CSS = `
     background: #fff; max-width: 8.5in; margin: 24px auto; padding: 1in;
     box-shadow: 0 2px 16px rgba(0,0,0,0.18); min-height: 11in;
   }
-  .doc-title { font-size: 24pt; font-weight: 700; line-height: 1.15; margin: 0 0 4pt; }
+  .doc-letterhead { display: flex; align-items: center; gap: 7pt; margin: 0 0 16pt; }
+  .doc-logo { width: 20pt; height: 20pt; object-fit: contain; }
+  .doc-brand { font-size: 9pt; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; color: #666; }
+  .doc-title { font-size: 22pt; font-weight: 700; line-height: 1.2; margin: 0 0 6pt; }
+  .doc-sponsor {
+    display: inline-block; font-size: 9pt; font-weight: 700; letter-spacing: 0.03em;
+    text-transform: uppercase; color: #7a5a00; background: #fdf0c4;
+    padding: 3pt 8pt; border-radius: 3px; margin: 0 0 9pt;
+  }
   .doc-meta { font-size: 10pt; color: #555; margin: 0 0 6pt; }
   .doc-rule { border: none; border-top: 2px solid #111; margin: 10pt 0 16pt; }
-  .doc-h2 { font-size: 13pt; font-weight: 700; margin: 16pt 0 5pt; letter-spacing: 0.02em; }
-  .doc-hook { font-size: 11pt; font-style: italic; margin: 0 0 9pt; }
+  .doc-hook-block {
+    background: #fbf7e9; border-left: 3px solid #f5c518; border-radius: 0 4px 4px 0;
+    padding: 8pt 12pt; margin: 0 0 16pt;
+  }
+  .doc-hook-label { font-size: 8.5pt; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #8a6d1a; margin: 0 0 3pt; }
+  .doc-hook { font-size: 11.5pt; font-style: italic; color: #222; margin: 0; }
   .doc-footer { font-size: 9pt; color: #888; margin-top: 28pt; border-top: 1px solid #ddd; padding-top: 8pt; }
   .doc-empty { font-size: 11pt; color: #666; font-style: italic; }
   .script-html h1, .script-html h2, .script-html h3 {
-    font-weight: 700; margin: 16pt 0 5pt; letter-spacing: 0.02em;
+    font-weight: 700; letter-spacing: 0.02em; margin: 16pt 0 6pt;
+    border-left: 3px solid #f5c518; padding-left: 8pt;
   }
   .script-html h1 { font-size: 15pt; }
   .script-html h2 { font-size: 13pt; }
   .script-html h3 { font-size: 12pt; }
-  .script-html p { font-size: 11pt; line-height: 1.5; margin: 0 0 9pt; }
+  .script-html p { font-size: 11pt; line-height: 1.6; margin: 0 0 9pt; }
   .script-html strong { font-weight: 700; }
   .script-html em { font-style: italic; }
   .script-html u { text-decoration: underline; }

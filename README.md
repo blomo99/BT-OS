@@ -114,14 +114,18 @@ Three places in the sidebar:
     needs the Anthropic API key in Settings. Older plain-text scripts
     self-upgrade into real formatting the first time they're opened.
     **Export PDF** opens the saved script at `/script/[id]` as a
-    Word-style document (white page, headings, print CSS) — hit "Save as
-    PDF" in the print dialog. The board header's **Export** menu covers the
-    bulk case: **ideas (CSV)** downloads every idea currently in view (or in
-    the Archive, when that's open) — title, format, stage, dates, sponsor,
-    tags, hook, notes, and the full script text, spreadsheet-ready — and
-    **scripts (PDF)** opens `/script/export?ids=…` with every scripted idea
-    in view as one Word-style document, one per page, ready to print or save
-    as a single PDF. Weekly output goals on top; YouTube uploads
+    letterhead-style document (logo top-left, title, a highlighted
+    **sponsor badge** pulled from the linked deal when one's attached, a
+    callout box for the hook, and each script section marked with an
+    accent tick) — hit "Save as PDF" in the print dialog. Built to be
+    skimmable for a brand approving sponsored content, not just readable.
+    The board header's **Export** menu covers the bulk case: **ideas
+    (CSV)** downloads every idea currently in view (or in the Archive,
+    when that's open) — title, format, stage, dates, sponsor, tags, hook,
+    notes, and the full script text, spreadsheet-ready — and **scripts
+    (PDF)** opens `/script/export?ids=…` with every scripted idea in view
+    as one document in the same letterhead format, one per page, ready to
+    print or save as a single PDF. Weekly output goals on top; YouTube uploads
     auto-detected (short vs long), TikTok/Instagram posts detected via
     post-count changes; Done auto-archives after N days.
   - **Brand Deals**: 13-stage sponsorship CRM (next actions, contracts,

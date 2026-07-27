@@ -1,5 +1,5 @@
 import { getDb } from "@/lib/db";
-import { DOC_PRINT_CSS, scriptTextToHTML } from "@/lib/scriptDoc";
+import { DOC_PRINT_CSS, DocHeader, scriptTextToHTML } from "@/lib/scriptDoc";
 import PrintToolbar from "../PrintToolbar";
 
 export const dynamic = "force-dynamic";
@@ -13,15 +13,21 @@ type Item = {
   tags: string | null;
   script: string | null;
   target_date: string | null;
+  sponsor_brand: string | null;
 };
 
 export default async function ScriptDocPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const item = getDb()
-    .prepare("SELECT id, title, format, status, hook, tags, script, target_date FROM content_items WHERE id = ?")
+    .prepare(
+      `SELECT c.id, c.title, c.format, c.status, c.hook, c.tags, c.script, c.target_date,
+              d.brand AS sponsor_brand
+       FROM content_items c
+       LEFT JOIN deals d ON d.id = c.deal_id
+       WHERE c.id = ?`
+    )
     .get(Number(id)) as Item | undefined;
 
-  const fmtLabel = item?.format === "long" ? "Long-form video script" : "Short-form video script";
   const html = item?.script ? scriptTextToHTML(item.script) : "";
 
   return (
@@ -35,21 +41,16 @@ export default async function ScriptDocPage({ params }: { params: Promise<{ id: 
           <p className="doc-empty">Script not found — the idea may have been deleted.</p>
         ) : (
           <>
-            <h1 className="doc-title">{item.title}</h1>
-            <p className="doc-meta">
-              {fmtLabel}
-              {item.target_date ? ` · Target: ${item.target_date}` : ""}
-              {item.tags ? ` · ${item.tags}` : ""}
-              {" · @CyberWithBen"}
-            </p>
-            <hr className="doc-rule" />
-
-            {item.hook && (
-              <>
-                <h2 className="doc-h2">Hook</h2>
-                <p className="doc-hook">“{item.hook}”</p>
-              </>
-            )}
+            <DocHeader
+              meta={{
+                title: item.title,
+                format: item.format,
+                targetDate: item.target_date,
+                tags: item.tags,
+                sponsorBrand: item.sponsor_brand,
+                hook: item.hook,
+              }}
+            />
 
             {!html ? (
               <p className="doc-empty">No script written yet — open the idea on the content board and draft one (or hit Generate with AI).</p>
@@ -58,7 +59,7 @@ export default async function ScriptDocPage({ params }: { params: Promise<{ id: 
             )}
 
             <p className="doc-footer">
-              BT OS · exported {new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}
+              @CyberWithBen · exported {new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}
             </p>
           </>
         )}
