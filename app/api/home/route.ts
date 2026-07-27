@@ -51,7 +51,8 @@ export async function GET() {
       .all(today) as { title: string; date: string; time: string | null }[]
   ).map((e) => ({
     title: e.title,
-    start: e.time ? new Date(`${e.date}T${e.time}`).toISOString() : new Date(`${e.date}T00:00`).toISOString(),
+    // naive wall-clock string, not UTC-converted — see app/api/events/route.ts
+    start: e.time ? `${e.date}T${e.time}:00` : `${e.date}T00:00:00`,
     all_day: e.time ? 0 : 1,
   }));
   const agenda = [...feedEvents, ...localEvents].sort((a, b) =>

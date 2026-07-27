@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import TodoList from "@/components/TodoList";
 import CalendarView from "@/components/CalendarView";
+import EventModal from "@/components/EventModal";
 import {
   Card,
   CardHeader,
@@ -239,6 +240,7 @@ type SchedEvent = { id: number; title: string; start: string; all_day: number; l
 function DaySchedule() {
   const [date, setDate] = useState(toDateStr(new Date()));
   const [events, setEvents] = useState<SchedEvent[] | null>(null);
+  const [adding, setAdding] = useState(false);
   const today = toDateStr(new Date());
 
   const load = useCallback((d: string) => {
@@ -286,6 +288,12 @@ function DaySchedule() {
             <IconButton label="Next day" onClick={() => setDate(addDaysStr(date, 1))}>
               <ChevronIcon dir="right" />
             </IconButton>
+            <span className="mx-0.5 h-4 w-px bg-line" />
+            <IconButton label="Add event" onClick={() => setAdding(true)}>
+              <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6">
+                <path d="M8 3v10M3 8h10" strokeLinecap="round" />
+              </svg>
+            </IconButton>
           </div>
         }
       />
@@ -311,6 +319,7 @@ function DaySchedule() {
           </ul>
         )}
       </div>
+      <EventModal open={adding} onClose={() => setAdding(false)} defaultDate={date} />
     </Card>
   );
 }

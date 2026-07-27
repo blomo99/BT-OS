@@ -8,7 +8,6 @@ import {
   TextButton,
   PrimaryButton,
   toDateStr,
-  TIME_OPTIONS,
 } from "@/components/ui";
 
 type CaptureType = "task" | "event" | "content" | "deal" | "idea";
@@ -199,12 +198,13 @@ export default function CaptureModal({
             </Field>
             {type === "event" && (
               <Field label="Time">
-                <select className={inputCls} value={time} onChange={(e) => setTime(e.target.value)}>
-                  <option value="">All day</option>
-                  {TIME_OPTIONS.map((t) => (
-                    <option key={t.value} value={t.value}>{t.label}</option>
-                  ))}
-                </select>
+                <input
+                  type="time"
+                  className={inputCls}
+                  value={time}
+                  onChange={(e) => setTime(e.target.value)}
+                  placeholder="All day"
+                />
               </Field>
             )}
           </div>

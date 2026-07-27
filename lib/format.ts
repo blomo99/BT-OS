@@ -70,7 +70,19 @@ export function fmtCompact(n: number | null | undefined): string {
   }).format(n);
 }
 
+/** Feed events (Google/Apple iCal) store a real UTC instant ("...Z") and
+ *  genuinely need timezone conversion to the viewer's local time. Locally
+ *  created events store a naive wall-clock string with no "Z"/offset — the
+ *  exact HH:MM the user typed — and must display as-is, unconverted, no
+ *  matter what timezone the server or browser happen to be in. */
 export function fmtTime(iso: string): string {
+  const naive = iso.match(/T(\d{2}):(\d{2})/);
+  if (naive && !/[Zz]|[+-]\d{2}:\d{2}$/.test(iso)) {
+    let h = Number(naive[1]);
+    const ampm = h < 12 ? "AM" : "PM";
+    h = h % 12 || 12;
+    return `${h}:${naive[2]} ${ampm}`;
+  }
   return new Date(iso).toLocaleTimeString("en-US", {
     hour: "numeric",
     minute: "2-digit",

@@ -71,14 +71,19 @@ Three places in the sidebar:
 
 - **Home** (`/`) — large greeting, then a packed top band of equal-height
   tiles: the day-based to-do (carries forward; ⭐ sets Top 3), a day-navigable
-  **Schedule** (arrows to any day), and a rail with Business attention /
-  Coming up / **this-week stats broken out by short-form and long-form**
-  (e.g. "2/3 short-form · 0/1 long-form", each with its own progress). The
-  calendar spans the full width beneath — week/month toggles with events in
-  15-minute increments and **multi-day events** for vacations on desktop;
-  on phones it's a flat 60-day **agenda list** instead (a 7-column grid
-  doesn't fit a phone width, and "what's coming up" is what an agenda is
-  for). iCal feeds import into either view. (`/personal` redirects here.)
+  **Schedule** (arrows to any day, plus its own **+ button** to add an event
+  without leaving the tile), and a rail with Business attention / Coming up /
+  **this-week stats broken out by short-form and long-form** (e.g. "2/3
+  short-form · 0/1 long-form", each with its own progress). The calendar
+  spans the full width beneath — week/month toggles with **multi-day
+  events** for vacations on desktop; on phones it's a flat 60-day **agenda
+  list** instead (a 7-column grid doesn't fit a phone width, and "what's
+  coming up" is what an agenda is for). iCal feeds import into either view.
+  Event time is a native time field (type the digits or use the picker —
+  no more scrolling a 96-row dropdown), and it's stored as the exact
+  wall-clock value you enter — never reinterpreted through a server or
+  browser timezone, so 7:45 PM always displays as 7:45 PM. (`/personal`
+  redirects here.)
 - **Idea Bank** (`/ideas`) — a freeform catch-all for random thoughts: just a
   title and open notes, persisted until you delete it (nothing archives or
   moves on its own). Reachable from the sidebar, the bottom tab bar, and as

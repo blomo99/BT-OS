@@ -210,17 +210,6 @@ export function Modal({
   );
 }
 
-/* 15-minute increments, starting the list at 7:00 AM so the common range is on top */
-export const TIME_OPTIONS = Array.from({ length: 96 }, (_, i) => {
-  const idx = (i + 28) % 96;
-  const h = Math.floor(idx / 4);
-  const m = (idx % 4) * 15;
-  const value = `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
-  const h12 = h % 12 === 0 ? 12 : h % 12;
-  const label = `${h12}:${String(m).padStart(2, "0")} ${h < 12 ? "AM" : "PM"}`;
-  return { value, label };
-});
-
 export const inputCls =
   "w-full rounded-lg border border-line bg-card-2 px-3 py-1.5 text-sm text-ink placeholder:text-ink-3 focus:border-line-2 transition-colors";
 

@@ -5,17 +5,13 @@ import {
   Card,
   CardHeader,
   IconButton,
-  Modal,
-  Field,
-  inputCls,
   TextButton,
-  PrimaryButton,
   toDateStr,
   addDaysStr,
   fromDateStr,
   fmtTime,
-  TIME_OPTIONS,
 } from "@/components/ui";
+import EventModal from "@/components/EventModal";
 
 type Ev = {
   id: number;
@@ -45,11 +41,7 @@ export default function CalendarView() {
 
   // add-event modal
   const [adding, setAdding] = useState(false);
-  const [evTitle, setEvTitle] = useState("");
-  const [evDate, setEvDate] = useState(toDateStr(now));
-  const [evEndDate, setEvEndDate] = useState("");
-  const [evTime, setEvTime] = useState("");
-  const [multiDay, setMultiDay] = useState(false);
+  const [addDate, setAddDate] = useState<string | undefined>(undefined);
 
   useEffect(() => {
     const saved = window.localStorage.getItem("btos-cal-mode");
@@ -105,38 +97,13 @@ export default function CalendarView() {
     return map;
   }, [events]);
 
-  const addEvent = async () => {
-    if (!evTitle.trim()) return;
-    await fetch("/api/events", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        title: evTitle,
-        date: evDate,
-        end_date: multiDay && evEndDate ? evEndDate : null,
-        time: multiDay ? null : evTime || null,
-      }),
-    });
-    setAdding(false);
-    setEvTitle("");
-    setEvTime("");
-    setEvEndDate("");
-    setMultiDay(false);
-    load();
-    window.dispatchEvent(new Event("btos:data-changed"));
-  };
-
   const removeEvent = async (id: number) => {
     await fetch(`/api/events?id=${id}`, { method: "DELETE" });
     load();
   };
 
   const openAdd = (date?: string) => {
-    const d = date ?? toDateStr(new Date());
-    setEvDate(d);
-    setEvEndDate("");
-    setEvTime("");
-    setMultiDay(false);
+    setAddDate(date ?? toDateStr(new Date()));
     setAdding(true);
   };
 
@@ -407,68 +374,7 @@ export default function CalendarView() {
         </div>
       )}
 
-      <Modal open={adding} onClose={() => setAdding(false)} title="New event">
-        <form
-          className="space-y-3"
-          onSubmit={(e) => {
-            e.preventDefault();
-            addEvent();
-          }}
-        >
-          <Field label="Title">
-            <input className={inputCls} value={evTitle} onChange={(e) => setEvTitle(e.target.value)} placeholder="What's happening?" autoFocus />
-          </Field>
-          <div className="grid grid-cols-2 gap-3">
-            <Field label={multiDay ? "Start date" : "Date"}>
-              <input
-                type="date"
-                className={inputCls}
-                value={evDate}
-                onChange={(e) => {
-                  setEvDate(e.target.value);
-                  if (multiDay && evEndDate && evEndDate < e.target.value) setEvEndDate(e.target.value);
-                }}
-              />
-            </Field>
-            {multiDay ? (
-              <Field label="End date">
-                <input
-                  type="date"
-                  className={inputCls}
-                  value={evEndDate}
-                  min={evDate}
-                  onChange={(e) => setEvEndDate(e.target.value)}
-                />
-              </Field>
-            ) : (
-              <Field label="Time">
-                <select className={inputCls} value={evTime} onChange={(e) => setEvTime(e.target.value)}>
-                  <option value="">All day</option>
-                  {TIME_OPTIONS.map((t) => (
-                    <option key={t.value} value={t.value}>{t.label}</option>
-                  ))}
-                </select>
-              </Field>
-            )}
-          </div>
-          <label className="flex cursor-pointer items-center gap-2 text-xs text-ink-2">
-            <input
-              type="checkbox"
-              className="h-3.5 w-3.5 accent-[var(--accent)]"
-              checked={multiDay}
-              onChange={(e) => {
-                setMultiDay(e.target.checked);
-                if (e.target.checked && !evEndDate) setEvEndDate(addDaysStr(evDate, 1));
-              }}
-            />
-            Multi-day event (vacation, trip…)
-          </label>
-          <div className="flex justify-end gap-2 pt-1">
-            <TextButton onClick={() => setAdding(false)}>Cancel</TextButton>
-            <PrimaryButton type="submit">Add</PrimaryButton>
-          </div>
-        </form>
-      </Modal>
+      <EventModal open={adding} onClose={() => setAdding(false)} defaultDate={addDate} />
     </Card>
   );
 }

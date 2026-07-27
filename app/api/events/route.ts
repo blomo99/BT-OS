@@ -73,9 +73,13 @@ export async function GET(req: NextRequest) {
         id: e.id,
         feed_name: "Personal",
         title: e.title,
-        start: timed
-          ? new Date(`${day}T${e.time}`).toISOString()
-          : new Date(`${day}T00:00`).toISOString(),
+        // plain wall-clock string, deliberately NOT run through `new
+        // Date(...).toISOString()` — that would interpret the naive string
+        // in the SERVER's timezone (Railway runs UTC) and bake in an
+        // offset, so "7:45 PM" typed by the user comes back as "3:45 PM"
+        // once the browser (in the user's real timezone) converts it back.
+        // No "Z"/offset suffix here signals fmtTime() to display it as-is.
+        start: timed ? `${day}T${e.time}:00` : `${day}T00:00:00`,
         end: null,
         all_day: timed ? 0 : 1,
         local: 1,
