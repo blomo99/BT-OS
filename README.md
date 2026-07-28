@@ -2,6 +2,8 @@
 
 Personal operating system / second brain. Local-first: everything lives in a
 SQLite database at `data/btos.db`; uploaded contracts live in `data/uploads/`.
+On Railway, that database lives on the mounted volume (`BTOS_DATA_DIR=/data`)
+so it survives every deploy instead of resetting with the container.
 
 ## Run it
 
