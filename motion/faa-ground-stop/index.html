@@ -277,16 +277,16 @@ const FILE_NO = 'File 013';
 const SCENES = [
   // dur: scene length. land: when the yellow phrase is revealed. Other keys are cues inside that scene.
   // These values are cut to assets/voiceover.m4a (the tight cut).
-  { id: 's1',  dur: 5.47, land: 2.62 },
-  { id: 's2',  dur: 6.86, land: 5.59, sweep: 3.39 },
-  { id: 's3',  dur: 5.31, land: 1.26, rows: [2.31, 3.71, 4.51] },
-  { id: 's4',  dur: 6.3, land: 1.86 },
-  { id: 's5',  dur: 7.44, land: 2.76, static: 4.46, screens: 6.2 },
-  { id: 's6',  dur: 6.33, land: 1.91, held: 2.81, air: 3.1 },
-  { id: 's7',  dur: 5.64, land: 0.93, rows: [1.68, 2.08, 2.58, 4.11] },
-  { id: 's8',  dur: 5.96, land: 2.14 },
-  { id: 's9',  dur: 5.69, land: 0.87, avail: 2.62 },
-  { id: 's10', dur: 3.41, land: 0.7 },
+  { id: 's1',  dur: 4.8, land: 2.6 },
+  { id: 's2',  dur: 5.65, land: 4.61, sweep: 2.41 },
+  { id: 's3',  dur: 4.85, land: 1.23, rows: [2.08, 3.48, 4.28] },
+  { id: 's4',  dur: 5.81, land: 1.83 },
+  { id: 's5',  dur: 6.9, land: 2.73, static: 4.29, screens: 5.89 },
+  { id: 's6',  dur: 5.9, land: 1.88, held: 2.78, air: 2.9 },
+  { id: 's7',  dur: 4.92, land: 0.64, rows: [1.39, 1.79, 2.14, 3.67] },
+  { id: 's8',  dur: 5.52, land: 2.11 },
+  { id: 's9',  dur: 5.25, land: 0.84, avail: 2.41 },
+  { id: 's10', dur: 3.12, land: 0.7 },
 ];
 /* ========================================================================== */
 
@@ -407,17 +407,17 @@ function head(scope, at, humAt) {
   fade($$('.src', scope), at + .9);
 }
 
-// scene changes: a 0.5 s wipe along the 36° slash
+// scene changes: a 0.4 s wipe along the 36° slash
 SCENES.forEach((s, i) => {
   tl.addLabel('scene:' + s.id, START[i]);
   if (!i) return;
-  const sc = '#' + s.id, t = START[i] - .12;
+  const sc = '#' + s.id, t = START[i] - .15;
   tl.set(sc, { visibility: 'visible' }, t);
-  tl.fromTo(sc, { '--p': 0 }, { '--p': 1, duration: .55, ease: 'power3.inOut' }, t);
+  tl.fromTo(sc, { '--p': 0 }, { '--p': 1, duration: .4, ease: 'power3.inOut' }, t);
   tl.set('#slash', { opacity: 1 }, t);
-  tl.fromTo('#slash', { x: -1424 }, { x: 1116, duration: .55, ease: 'power3.inOut' }, t);
-  tl.set('#slash', { opacity: 0 }, t + .55);
-  tl.set('#' + SCENES[i - 1].id, { visibility: 'hidden' }, t + .56);
+  tl.fromTo('#slash', { x: -1424 }, { x: 1116, duration: .4, ease: 'power3.inOut' }, t);
+  tl.set('#slash', { opacity: 0 }, t + .4);
+  tl.set('#' + SCENES[i - 1].id, { visibility: 'hidden' }, t + .41);
 });
 
 // 01 hook. Frame 0 is the poster: the sky is busy and the claim is already up.
@@ -430,7 +430,7 @@ SCENES.forEach((s, i) => {
 }
 // 02 the order
 { const T = START[1], s = $('#s2');
-  const C = SCENES[1]; head(s, T + .15, T + C.land);
+  const C = SCENES[1]; head(s, T + .0, T + C.land);
   fade(['#clock > circle', '#ticks', '#clock > text:not(#c-mid)', '#hand'], T + .3, { d: .6 });
   gsap.set('#clock .dim', { opacity: .28 });
   rise('#c-in', T + .8);
@@ -442,45 +442,45 @@ SCENES.forEach((s, i) => {
 }
 // 03 rarity
 { const T = START[2], s = $('#s3');
-  const C = SCENES[2]; head(s, T + .15, T + C.land);
+  const C = SCENES[2]; head(s, T + .0, T + C.land);
   drawOn('#h-line', T + .5, 1.6);
   $$('.h-row', s).forEach((r, i) => rise(r, T + C.rows[i]));
 }
 // 04 how it works
 { const T = START[3], s = $('#s4');
-  head(s, T + .15, T + SCENES[3].land);
+  head(s, T + .0, T + SCENES[3].land);
   drawOn('#p-ground', T + .4, .8); drawOn('#p-path', T + .6, 1.2); tl.set('#p-path', { opacity: .4 }, T + .6);
   fade('#p-zones', T + 1.0); rise($$('.stn', s), T + 1.1, { stagger: .1 }); fade('#p-artcc', T + 1.6);
 }
 // 05 what failed
 { const T = START[4], s = $('#s5');
-  const C = SCENES[4]; head(s, T + .15, T + C.land);
+  const C = SCENES[4]; head(s, T + .0, T + C.land);
   fade(['#r-planes', '#r-ctrs'], T + .35, { stagger: .1 }); rise('#r-box', T + .45); fade('#r-lines', T + .6);
   tl.fromTo('#r-x .rx', { opacity: 0, scale: 1.8, transformOrigin: '50% 50%' }, { opacity: 1, scale: 1, duration: .35, ease: E, stagger: .06 }, T + C.land + .5);
   rise('#r-c1', T + C.static); rise('#r-c2', T + C.screens);
 }
 // 06 why stop everything
 { const T = START[5], s = $('#s6');
-  const C = SCENES[5]; head(s, T + .15, T + C.land);
+  const C = SCENES[5]; head(s, T + .0, T + C.land);
   gsap.set(net6.routes, { opacity: .45 });
   tl.fromTo(net6.rings, { opacity: 0, scale: 2.2, transformOrigin: '50% 50%' }, { opacity: 1, scale: 1, duration: .5, ease: E, stagger: .025 }, T + .5);
   rise($$('.lg', s)[1], T + C.held); rise($$('.lg', s)[0], T + C.air);
 }
 // 07 was it a hack
 { const T = START[6], s = $('#s7');
-  const C = SCENES[6]; head(s, T + .15, T + C.land);
+  const C = SCENES[6]; head(s, T + .0, T + C.land);
   $$('.row', s).forEach((r, i) => rise(r, T + C.rows[i]));
 }
 // 08 fallout
 { const T = START[7], s = $('#s8');
-  head(s, T + .15, T + SCENES[7].land);
+  head(s, T + .0, T + SCENES[7].land);
   fade('#grid', T + .3);
   const o = { v: 0 };
   tl.fromTo(o, { v: 0 }, { v: 15000, duration: 1.5, ease: 'power2.out', onUpdate: () => { $('#cnt').textContent = (Math.round(o.v / 100) * 100).toLocaleString('en-US') + (o.v >= 14999 ? '+' : ''); } }, T + .5);
 }
 // 09 lesson
 { const T = START[8], s = $('#s9');
-  const C = SCENES[8]; head(s, T + .15, T + C.land);
+  const C = SCENES[8]; head(s, T + .0, T + C.land);
   drawOn('#t-path', T + .5, 1.4);
   rise('#t-c', T + .9); rise('#t-i', T + 1.2); rise('#t-a', T + C.avail); fade('#t-mid', T + C.avail + .7);
   tl.fromTo('#t-a circle', { scale: 2.4, transformOrigin: '50% 50%' }, { scale: 1, duration: .6, ease: E }, T + C.avail);

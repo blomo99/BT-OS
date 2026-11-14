@@ -5,20 +5,20 @@ SRC, OUT_AUDIO, HTML = sys.argv[1], sys.argv[2], sys.argv[3]
 
 # (start, end, scene) of each kept phrase in the original recording, from the level trace
 P = [
-    (0.76, 4.29, 1), (4.53, 5.93, 1),
-    (6.74, 7.40, 2), (8.27, 11.79, 2), (12.13, 14.10, 2),
-    (15.06, 17.01, 3), (18.15, 20.95, 3),
-    (21.81, 24.90, 4), (25.26, 27.91, 4),
+    (0.76, 4.01, 1), (4.53, 5.93, 1),
+    (8.27, 11.79, 2), (12.13, 14.10, 2),   # 6.74-7.40 is a false start of this line, dropped
+    (15.06, 16.95, 3), (18.15, 20.95, 3),
+    (21.81, 24.84, 4), (25.26, 27.88, 4),
     (29.30, 33.40, 5), (34.10, 35.63, 5), (36.01, 37.05, 5),
-    (37.79, 40.53, 6), (42.40, 45.43, 6),
-    (49.71, 50.42, 7), (51.29, 52.33, 7), (53.55, 56.51, 7),
-    (57.43, 60.82, 8), (61.10, 63.11, 8),
-    (65.12, 67.26, 9), (67.63, 70.62, 9),
+    (37.79, 40.50, 6), (42.40, 45.43, 6),
+    (49.71, 50.38, 7), (51.29, 52.32, 7), (53.55, 56.46, 7),
+    (57.43, 60.78, 8), (61.10, 63.11, 8),
+    (65.12, 67.22, 9), (67.63, 70.62, 9),
     (80.85, 83.11, 10),
 ]
-PRE, POST = 0.05, 0.10          # breathing room kept around each phrase
-GAP_IN, GAP_SCENE = 0.06, 0.20  # silence added between phrases / between scenes
-GAP = {(6.74, 7.40): 0.0, (49.71, 50.42): 0.22}   # mid-sentence hesitation closed; a beat after the question
+PRE, POST = 0.03, 0.04          # room kept around each phrase so words are not clipped
+GAP_IN, GAP_SCENE = 0.0, 0.02   # extra silence between phrases / between scenes
+GAP = {(49.71, 50.38): 0.08}    # a short beat after the question
 
 segs, t, first = [], 0.08, {}
 for i, (a, b, sc) in enumerate(P):
@@ -35,9 +35,9 @@ def out(orig):                   # original-recording time -> time in the tight 
         if a2 <= orig <= b2: return o + orig - a2
     raise ValueError(orig)
 
-LEAD = 0.15                      # a scene opens this long before its first word
+LEAD = 0.12                      # a scene opens this long before its first word
 starts = {sc: max(0, first[sc] - LEAD) for sc in first}
-total = round(speech_end + 0.9, 2)
+total = round(speech_end + 0.7, 2)
 ends = {sc: (starts[sc + 1] if sc < 10 else total) for sc in starts}
 loc = lambda sc, orig, shift=0.0: round(out(orig) - starts[sc] + shift, 2)
 dur = {sc: round(ends[sc] - starts[sc], 2) for sc in starts}
