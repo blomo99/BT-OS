@@ -41,7 +41,7 @@
 
   /* redaction bar */
   .rd { position: relative; display: inline-block; }
-  .rd .bar { position: absolute; left: -.06em; right: -.02em; top: .1em; bottom: .04em; background: var(--y); }
+  .rd .bar { position: absolute; left: -.06em; right: -.02em; top: -.02em; bottom: -.04em; background: var(--y); }
 
   svg { position: absolute; left: 0; top: 0; width: 1080px; height: 1920px; overflow: visible; }
   svg * { vector-effect: none; }
@@ -392,7 +392,7 @@ const drawOn = (target, at, d = .9, ease = 'power2.inOut') => { tl.set(target, {
 // The brand handshake: the leaning yellow bar sweeps on, the word appears under it, the bar lifts off.
 function redact(scope, at) {
   const tx = $('.rd .tx', scope), bar = $('.rd .bar', scope);
-  tl.set(tx, { opacity: 0 }, 0);
+  gsap.set(tx, { opacity: 0 });
   tl.fromTo(bar, { scaleX: 0, transformOrigin: '0% 50%' }, { scaleX: 1, duration: .3, ease: 'power3.out' }, at);
   tl.set(tx, { opacity: 1 }, at + .3);
   tl.set(bar, { transformOrigin: '100% 50%' }, at + .38);
