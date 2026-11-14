@@ -1,8 +1,8 @@
-# Voiceover draft: CWB / File 013 / Ground stop
+# Voiceover script: CWB / File 013 / Ground stop
 
-About 150 words for 59.5 s, roughly 2.5 words a second. The **bold** words are
-the ones to hit as the yellow phrase is revealed on screen; the time next to
-each is when that reveal happens.
+About 150 words. The **bold** words are the ones the yellow phrase is revealed
+on. The windows below are the original 59.5 s plan; the recorded read runs
+70.8 s and the video was retimed to it, so the actual times are in the README.
 
 | # | Scene window | Line | Lands |
 |---|---|---|---|

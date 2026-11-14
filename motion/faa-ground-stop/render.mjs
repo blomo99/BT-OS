@@ -1,11 +1,11 @@
-// Renders index.html frame by frame to an MP4 (no audio).
+// Renders index.html frame by frame to an MP4, with assets/voiceover.m4a under it.
 //   node render.mjs                  -> out/faa-ground-stop.mp4 at 60 fps
 //   node render.mjs --fps 30         -> 30 fps
 //   node render.mjs --stills 1,4.5   -> PNG stills at those seconds, no video
 // Needs Playwright (Chromium) and ffmpeg on the PATH.
 import { createRequire } from "node:module";
 import { spawn, execFileSync } from "node:child_process";
-import { mkdirSync, writeFileSync, rmSync } from "node:fs";
+import { mkdirSync, writeFileSync, rmSync, existsSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
@@ -72,6 +72,9 @@ await browser.close();
 const list = path.join(out, ".parts.txt");
 writeFileSync(list, parts.map((p) => `file '${p}'`).join("\n"));
 const final = path.join(out, "faa-ground-stop.mp4");
-execFileSync("ffmpeg", ["-v", "error", "-y", "-f", "concat", "-safe", "0", "-i", list, "-c", "copy", "-movflags", "+faststart", final]);
+// The voiceover is laid under the picture when assets/voiceover.m4a exists (or --audio <file>; --audio none for silent).
+const voice = arg("audio", path.join(here, "assets", "voiceover.m4a"));
+const audio = voice !== "none" && existsSync(voice) ? ["-i", voice, "-map", "0:v", "-map", "1:a", "-c:a", "copy", "-shortest"] : [];
+execFileSync("ffmpeg", ["-v", "error", "-y", "-f", "concat", "-safe", "0", "-i", list, ...audio, "-c:v", "copy", "-movflags", "+faststart", final]);
 [...parts, list].forEach((p) => rmSync(p));
 console.log("wrote", final);

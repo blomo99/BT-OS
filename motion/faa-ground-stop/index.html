@@ -270,22 +270,23 @@
 
 <script>
 /* ============================================================================
-   EDIT HERE. Scene lengths in seconds: stretch or shrink each one to fit the
-   voiceover. Everything inside a scene is timed from that scene's start and
-   simply holds longer when the scene gets longer.
+   EDIT HERE. Scene lengths and cue times in seconds, measured from each scene's
+   start. Change them to fit a different voiceover take, then re-render.
    ========================================================================== */
 const FILE_NO = 'File 013';
 const SCENES = [
-  { id: 's1',  dur: 5.5 },  // hook: every U.S. takeoff stopped
-  { id: 's2',  dur: 6.0 },  // the order: 3:54 PM to 8:15 PM, 4h 21m
-  { id: 's3',  dur: 5.0 },  // only the third ever
-  { id: 's4',  dur: 7.5 },  // how it works: en route centers
-  { id: 's5',  dur: 8.0 },  // what failed: old routers, overloaded
-  { id: 's6',  dur: 6.5 },  // why stop everything: no new takeoffs
-  { id: 's7',  dur: 7.0 },  // was it a hack: no evidence so far
-  { id: 's8',  dur: 5.5 },  // fallout: 15,000+ flights
-  { id: 's9',  dur: 5.0 },  // lesson: availability
-  { id: 's10', dur: 3.5 },  // end card
+  // dur: scene length. land: when the yellow phrase is revealed. Other keys are cues inside that scene.
+  // These values are cut to assets/voiceover.m4a.
+  { id: 's1',  dur: 5.8,  land: 2.7 },                                 // hook: every U.S. takeoff stopped
+  { id: 's2',  dur: 8.35, land: 6.68, sweep: 4.4 },                    // the order: 3:54 PM to 8:15 PM, 4h 21m
+  { id: 's3',  dur: 6.7,  land: 1.47, rows: [3.3, 4.85, 5.7] },        // only the third ever
+  { id: 's4',  dur: 7.5,  land: 2.12 },                                // how it works: en route centers
+  { id: 's5',  dur: 8.5,  land: 3.0,  static: 5.1, screens: 7.0 },     // what failed: old routers, overloaded
+  { id: 's6',  dur: 8.3,  land: 2.15, held: 2.9, air: 4.9 },           // why stop everything: no new takeoffs
+  { id: 's7',  dur: 7.7,  land: 1.65, rows: [2.4, 3.1, 4.2, 5.8] },    // was it a hack: no evidence so far
+  { id: 's8',  dur: 7.7,  land: 2.42 },                                // fallout: 15,000+ flights
+  { id: 's9',  dur: 6.25, land: 1.14, avail: 3.1 },                    // lesson: availability
+  { id: 's10', dur: 4.0,  land: 0.9 },                                 // end card
 ];
 /* ========================================================================== */
 
@@ -422,77 +423,78 @@ SCENES.forEach((s, i) => {
 // 01 hook. Frame 0 is the poster: the sky is busy and the claim is already up.
 { const T = START[0], s = $('#s1');
   rise($$('.head .lbl', s), T + .1); fade($$('.src', s), T + .9);
-  redact(s, T + 2.3);
-  tl.to(net1.routes, { opacity: .45, duration: 1.2, ease: 'power2.out' }, T + 2.6);
-  tl.fromTo(net1.rings, { opacity: 0, scale: 2.2, transformOrigin: '50% 50%' }, { opacity: 1, scale: 1, duration: .5, ease: E, stagger: .025 }, T + 2.6);
+  const L = SCENES[0].land;
+  redact(s, T + L);
+  tl.to(net1.routes, { opacity: .45, duration: 1.2, ease: 'power2.out' }, T + L + .3);
+  tl.fromTo(net1.rings, { opacity: 0, scale: 2.2, transformOrigin: '50% 50%' }, { opacity: 1, scale: 1, duration: .5, ease: E, stagger: .025 }, T + L + .3);
 }
 // 02 the order
 { const T = START[1], s = $('#s2');
-  head(s, T + .15, T + 3.5);
+  const C = SCENES[1]; head(s, T + .15, T + C.land);
   fade(['#clock > circle', '#ticks', '#clock > text:not(#c-mid)', '#hand'], T + .3, { d: .6 });
   gsap.set('#clock .dim', { opacity: .28 });
   rise('#c-in', T + .8);
   const o = { m: 0 };
-  drawOn('#arc', T + 1.0, 2.3);
-  tl.fromTo('#hand', { rotation: A0, svgOrigin: `${CX} ${CY}` }, { rotation: A1, duration: 2.3, ease: 'power2.inOut' }, T + 1.0);
-  tl.fromTo(o, { m: 0 }, { m: 261, duration: 2.3, ease: 'power2.inOut', onUpdate: () => { const m = Math.round(o.m); $('#dur').textContent = `${Math.floor(m / 60)}H ${String(m % 60).padStart(2, '0')}M`; } }, T + 1.0);
-  rise('#c-out', T + 3.1); fade('#c-mid', T + 1.4);
+  drawOn('#arc', T + C.sweep, 2.3);
+  tl.fromTo('#hand', { rotation: A0, svgOrigin: `${CX} ${CY}` }, { rotation: A1, duration: 2.3, ease: 'power2.inOut' }, T + C.sweep);
+  tl.fromTo(o, { m: 0 }, { m: 261, duration: 2.3, ease: 'power2.inOut', onUpdate: () => { const m = Math.round(o.m); $('#dur').textContent = `${Math.floor(m / 60)}H ${String(m % 60).padStart(2, '0')}M`; } }, T + C.sweep);
+  rise('#c-out', T + C.sweep + 2.1); fade('#c-mid', T + 1.4);
 }
 // 03 rarity
 { const T = START[2], s = $('#s3');
-  head(s, T + .15, T + 2.5);
+  const C = SCENES[2]; head(s, T + .15, T + C.land);
   drawOn('#h-line', T + .5, 1.6);
-  $$('.h-row', s).forEach((r, i) => rise(r, T + .7 + i * .6));
+  $$('.h-row', s).forEach((r, i) => rise(r, T + C.rows[i]));
 }
 // 04 how it works
 { const T = START[3], s = $('#s4');
-  head(s, T + .15, T + 2.6);
+  head(s, T + .15, T + SCENES[3].land);
   drawOn('#p-ground', T + .4, .8); drawOn('#p-path', T + .6, 1.2); tl.set('#p-path', { opacity: .4 }, T + .6);
   fade('#p-zones', T + 1.0); rise($$('.stn', s), T + 1.1, { stagger: .1 }); fade('#p-artcc', T + 1.6);
 }
 // 05 what failed
 { const T = START[4], s = $('#s5');
-  head(s, T + .15, T + 3.9);
+  const C = SCENES[4]; head(s, T + .15, T + C.land);
   fade(['#r-planes', '#r-ctrs'], T + .35, { stagger: .1 }); rise('#r-box', T + .45); fade('#r-lines', T + .6);
-  tl.fromTo('#r-x .rx', { opacity: 0, scale: 1.8, transformOrigin: '50% 50%' }, { opacity: 1, scale: 1, duration: .35, ease: E, stagger: .06 }, T + 4.1);
-  rise('#r-c1', T + 4.5); rise('#r-c2', T + 4.9);
+  tl.fromTo('#r-x .rx', { opacity: 0, scale: 1.8, transformOrigin: '50% 50%' }, { opacity: 1, scale: 1, duration: .35, ease: E, stagger: .06 }, T + C.land + .5);
+  rise('#r-c1', T + C.static); rise('#r-c2', T + C.screens);
 }
 // 06 why stop everything
 { const T = START[5], s = $('#s6');
-  head(s, T + .15, T + 2.4);
+  const C = SCENES[5]; head(s, T + .15, T + C.land);
   gsap.set(net6.routes, { opacity: .45 });
   tl.fromTo(net6.rings, { opacity: 0, scale: 2.2, transformOrigin: '50% 50%' }, { opacity: 1, scale: 1, duration: .5, ease: E, stagger: .025 }, T + .5);
-  rise($$('.lg', s), T + 1.3, { stagger: .7 });
+  rise($$('.lg', s)[1], T + C.held); rise($$('.lg', s)[0], T + C.air);
 }
 // 07 was it a hack
 { const T = START[6], s = $('#s7');
-  head(s, T + .15, T + 1.5);
-  $$('.row', s).forEach((r, i) => rise(r, T + 2.2 + i * .75));
+  const C = SCENES[6]; head(s, T + .15, T + C.land);
+  $$('.row', s).forEach((r, i) => rise(r, T + C.rows[i]));
 }
 // 08 fallout
 { const T = START[7], s = $('#s8');
-  head(s, T + .15, T + 2.5);
+  head(s, T + .15, T + SCENES[7].land);
   fade('#grid', T + .3);
   const o = { v: 0 };
-  tl.fromTo(o, { v: 0 }, { v: 15000, duration: 2.0, ease: 'power2.out', onUpdate: () => { $('#cnt').textContent = (Math.round(o.v / 100) * 100).toLocaleString('en-US') + (o.v >= 14999 ? '+' : ''); } }, T + .5);
+  tl.fromTo(o, { v: 0 }, { v: 15000, duration: 1.8, ease: 'power2.out', onUpdate: () => { $('#cnt').textContent = (Math.round(o.v / 100) * 100).toLocaleString('en-US') + (o.v >= 14999 ? '+' : ''); } }, T + .5);
 }
 // 09 lesson
 { const T = START[8], s = $('#s9');
-  head(s, T + .15, T + 1.5);
+  const C = SCENES[8]; head(s, T + .15, T + C.land);
   drawOn('#t-path', T + .5, 1.4);
-  rise('#t-c', T + .9); rise('#t-i', T + 1.2); rise('#t-a', T + 2.3); fade('#t-mid', T + 2.9);
-  tl.fromTo('#t-a circle', { scale: 2.4, transformOrigin: '50% 50%' }, { scale: 1, duration: .6, ease: E }, T + 2.3);
+  rise('#t-c', T + .9); rise('#t-i', T + 1.2); rise('#t-a', T + C.avail); fade('#t-mid', T + C.avail + .7);
+  tl.fromTo('#t-a circle', { scale: 2.4, transformOrigin: '50% 50%' }, { scale: 1, duration: .6, ease: E }, T + C.avail);
 }
 // 10 end card
 { const T = START[9], s = $('#s10');
-  rise('#e-logo', T + .2, { d: .7 }); rise('#e-name', T + .4); redact(s, T + .9); fade('#e-tag', T + 1.4);
+  rise('#e-logo', T + .2, { d: .7 }); rise('#e-name', T + .4); redact(s, T + SCENES[9].land); fade('#e-tag', T + SCENES[9].land + .5);
 }
 tl.to({}, { duration: .001 }, TOTAL - .001);
 
 /* ---------- things that move every frame (pure functions of time) --------- */
 const live = (i, t) => t > START[i] - .2 && t < START[i] + SCENES[i].dur + .7;
 function drawAll(t) {
-  if (live(0, t)) net1.draw(t - START[0] + 30, 32.6);            // sky is full at frame 0; the stop lands at 2.6 s
+  if (live(0, t)) net1.draw(t - START[0] + 30, 30.3 + SCENES[0].land); // sky is full at frame 0; the stop lands with the yellow word
   if (live(5, t)) net6.draw(t - START[5] + 30.6, 30.9);          // picks up as the stop lands, then the sky drains
 
   if (live(3, t)) {                                              // plane along the flight profile, handed centre to centre
@@ -507,7 +509,7 @@ function drawAll(t) {
   }
 
   if (live(4, t)) {                                              // data piles into the router until it chokes
-    const s = t - START[4], load = clamp((s - .9) / 2.9), dead = clamp((s - 3.8) / .5), pct = Math.round(lerp(22, 100, smooth(load)));
+    const s = t - START[4], L5 = SCENES[4].land, load = clamp((s - .7) / (L5 - .5)), dead = clamp((s - L5 - .3) / .5), pct = Math.round(lerp(22, 100, smooth(load)));
     const n = lerp(1.5, PK, smooth(load));
     pk.forEach((line, j) => line.forEach((d, k) => {
       const u = ((s * (j % 2 ? .42 : .5) + d.ph) % 1 + 1) % 1, pt = rPaths[j].getPointAtLength(u * d.len);
@@ -523,7 +525,7 @@ function drawAll(t) {
   }
 
   if (live(7, t)) {                                              // the count, as a shape
-    const s = t - START[7], w = 1 - Math.pow(1 - clamp((s - .5) / 2.0), 2);
+    const s = t - START[7], w = 1 - Math.pow(1 - clamp((s - .5) / 1.8), 2);
     gridP.forEach(g => g.e.setAttribute('opacity', lerp(.14, 1, clamp(w * (gridMax + 3) - g.k)).toFixed(3)));
   }
 }
