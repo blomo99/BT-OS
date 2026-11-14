@@ -276,17 +276,17 @@
 const FILE_NO = 'File 013';
 const SCENES = [
   // dur: scene length. land: when the yellow phrase is revealed. Other keys are cues inside that scene.
-  // These values are cut to assets/voiceover.m4a.
-  { id: 's1',  dur: 5.8,  land: 2.7 },                                 // hook: every U.S. takeoff stopped
-  { id: 's2',  dur: 8.35, land: 6.68, sweep: 4.4 },                    // the order: 3:54 PM to 8:15 PM, 4h 21m
-  { id: 's3',  dur: 6.7,  land: 1.47, rows: [3.3, 4.85, 5.7] },        // only the third ever
-  { id: 's4',  dur: 7.5,  land: 2.12 },                                // how it works: en route centers
-  { id: 's5',  dur: 8.5,  land: 3.0,  static: 5.1, screens: 7.0 },     // what failed: old routers, overloaded
-  { id: 's6',  dur: 8.3,  land: 2.15, held: 2.9, air: 4.9 },           // why stop everything: no new takeoffs
-  { id: 's7',  dur: 7.7,  land: 1.65, rows: [2.4, 3.1, 4.2, 5.8] },    // was it a hack: no evidence so far
-  { id: 's8',  dur: 7.7,  land: 2.42 },                                // fallout: 15,000+ flights
-  { id: 's9',  dur: 6.25, land: 1.14, avail: 3.1 },                    // lesson: availability
-  { id: 's10', dur: 4.0,  land: 0.9 },                                 // end card
+  // These values are cut to assets/voiceover.m4a (the tight cut).
+  { id: 's1',  dur: 5.47, land: 2.62 },
+  { id: 's2',  dur: 6.86, land: 5.59, sweep: 3.39 },
+  { id: 's3',  dur: 5.31, land: 1.26, rows: [2.31, 3.71, 4.51] },
+  { id: 's4',  dur: 6.3, land: 1.86 },
+  { id: 's5',  dur: 7.44, land: 2.76, static: 4.46, screens: 6.2 },
+  { id: 's6',  dur: 6.33, land: 1.91, held: 2.81, air: 3.1 },
+  { id: 's7',  dur: 5.64, land: 0.93, rows: [1.68, 2.08, 2.58, 4.11] },
+  { id: 's8',  dur: 5.96, land: 2.14 },
+  { id: 's9',  dur: 5.69, land: 0.87, avail: 2.62 },
+  { id: 's10', dur: 3.41, land: 0.7 },
 ];
 /* ========================================================================== */
 
@@ -476,7 +476,7 @@ SCENES.forEach((s, i) => {
   head(s, T + .15, T + SCENES[7].land);
   fade('#grid', T + .3);
   const o = { v: 0 };
-  tl.fromTo(o, { v: 0 }, { v: 15000, duration: 1.8, ease: 'power2.out', onUpdate: () => { $('#cnt').textContent = (Math.round(o.v / 100) * 100).toLocaleString('en-US') + (o.v >= 14999 ? '+' : ''); } }, T + .5);
+  tl.fromTo(o, { v: 0 }, { v: 15000, duration: 1.5, ease: 'power2.out', onUpdate: () => { $('#cnt').textContent = (Math.round(o.v / 100) * 100).toLocaleString('en-US') + (o.v >= 14999 ? '+' : ''); } }, T + .5);
 }
 // 09 lesson
 { const T = START[8], s = $('#s9');
@@ -525,7 +525,7 @@ function drawAll(t) {
   }
 
   if (live(7, t)) {                                              // the count, as a shape
-    const s = t - START[7], w = 1 - Math.pow(1 - clamp((s - .5) / 1.8), 2);
+    const s = t - START[7], w = 1 - Math.pow(1 - clamp((s - .5) / 1.5), 2);
     gridP.forEach(g => g.e.setAttribute('opacity', lerp(.14, 1, clamp(w * (gridMax + 3) - g.k)).toFixed(3)));
   }
 }

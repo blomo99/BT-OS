@@ -1,8 +1,8 @@
 # Voiceover script: CWB / File 013 / Ground stop
 
 About 150 words. The **bold** words are the ones the yellow phrase is revealed
-on. The windows below are the original 59.5 s plan; the recorded read runs
-70.8 s and the video was retimed to it, so the actual times are in the README.
+on. The windows below are the original 59.5 s plan; the tight cut of the read runs
+58.4 s and the video was retimed to it, so the actual times are in the README.
 
 | # | Scene window | Line | Lands |
 |---|---|---|---|
