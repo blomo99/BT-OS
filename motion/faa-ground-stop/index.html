@@ -1,0 +1,556 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CWB / File 013 / Ground stop</title>
+<script src="vendor/gsap.min.js"></script>
+<style>
+  @font-face { font-family: "Archivo"; src: url(fonts/archivo-latin-standard-normal.woff2) format("woff2"); font-weight: 100 900; font-stretch: 62% 125%; }
+  @font-face { font-family: "Martian Mono"; src: url(fonts/martian-mono-latin-standard-normal.woff2) format("woff2"); font-weight: 100 800; font-stretch: 75% 112.5%; }
+  @font-face { font-family: "Instrument Serif"; src: url(fonts/instrument-serif-latin-400-italic.woff2) format("woff2"); font-style: italic; font-weight: 400; }
+
+  :root { --ink:#0a0908; --panel:#141210; --paper:#f4f1ea; --steel:#8e8b84; --y:#ffe91f; --red:#ff3b30; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 100%; height: 100%; background: #000; overflow: hidden; }
+  #stage { position: absolute; left: 0; top: 0; width: 1080px; height: 1920px; background: var(--ink); color: var(--paper); overflow: hidden; transform-origin: 0 0; font-family: "Archivo", sans-serif; }
+
+  /* the three voices */
+  .sys  { font-family: "Martian Mono", monospace; font-stretch: 87.5%; font-variation-settings: "wdth" 87.5; font-weight: 500; text-transform: uppercase; letter-spacing: .14em; }
+  .mach { font-family: "Archivo", sans-serif; font-stretch: 125%; font-variation-settings: "wdth" 125; font-weight: 900; text-transform: uppercase; letter-spacing: -.015em; line-height: .92; }
+  .hum  { font-family: "Instrument Serif", serif; font-style: italic; font-weight: 400; color: var(--y); letter-spacing: -.01em; line-height: .95; }
+  .steel { color: var(--steel); } .yel { color: var(--y); }
+  i.sl { display: inline-block; width: 4px; height: 1em; background: var(--y); transform: skewX(-36deg); margin: 0 .62em; vertical-align: -.12em; }
+
+  /* scenes */
+  .scene { position: absolute; inset: 0; background: var(--ink); visibility: hidden; --p: 1;
+    clip-path: polygon(0 0, calc(var(--p) * 2540px - 25px) 0, calc(var(--p) * 2540px - 1420px) 100%, 0 100%); }
+  #s1 { visibility: visible; }
+  .vig { position: absolute; inset: 0; background: radial-gradient(900px 1300px at 50% 50%, transparent 55%, rgba(0,0,0,.5)); pointer-events: none; }
+  #slash { position: absolute; left: 0; bottom: 0; width: 8px; height: 1920px; background: var(--y); transform-origin: 0 100%; opacity: 0; z-index: 50; }
+
+  .tab { position: absolute; left: 64px; top: 118px; display: flex; align-items: center; gap: 18px; font-size: 24px; color: var(--steel); white-space: nowrap; }
+  .tab img { width: 60px; height: 60px; }
+  .tab b { color: var(--paper); font-weight: 500; }
+  .head { position: absolute; left: 64px; top: 236px; width: 952px; }
+  .lbl { font-size: 28px; color: var(--paper); white-space: nowrap; margin-bottom: 26px; }
+  .head .mach { font-size: 104px; white-space: nowrap; }
+  .head .hum { font-size: 136px; white-space: nowrap; display: inline-block; margin-top: 4px; padding-right: .12em; }
+  .src { position: absolute; left: 64px; top: 1446px; font-size: 22px; color: var(--steel); white-space: nowrap; }
+  .src em { font-style: normal; color: var(--paper); }
+
+  /* redaction bar */
+  .rd { position: relative; display: inline-block; }
+  .rd .bar { position: absolute; left: -.06em; right: -.02em; top: .1em; bottom: .04em; background: var(--y); }
+
+  svg { position: absolute; left: 0; top: 0; width: 1080px; height: 1920px; overflow: visible; }
+  svg * { vector-effect: none; }
+  .ln  { fill: none; stroke: var(--paper); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+  .lny { fill: none; stroke: var(--y); stroke-width: 6; stroke-linecap: round; stroke-linejoin: round; }
+  .thin { stroke-width: 2; } .dim { opacity: .28; }
+  .draw { stroke-dasharray: 1; stroke-dashoffset: 1; opacity: 0; }
+  svg text { fill: var(--steel); font-family: "Martian Mono", monospace; font-stretch: 87.5%; font-variation-settings: "wdth" 87.5; font-weight: 500; letter-spacing: .14em; font-size: 26px; }
+  svg text.p { fill: var(--paper); } svg text.yt { fill: var(--y); } svg text.rt { fill: var(--red); }
+  svg text.m { font-family: "Archivo", sans-serif; font-stretch: 125%; font-variation-settings: "wdth" 125; font-weight: 900; letter-spacing: -.015em; fill: var(--paper); }
+
+  /* finding rows (scene 7) */
+  .row { position: absolute; left: 64px; display: flex; align-items: center; gap: 28px; white-space: nowrap; }
+  .row .n { font-size: 24px; color: var(--steel); width: 44px; }
+  .row .mk { width: 54px; height: 54px; flex: none; }
+  .row .t { font-size: 47px; }
+  .row .d { font-size: 22px; color: var(--steel); margin-top: 12px; }
+  .row .d.yel { color: var(--y); }
+
+  /* end card */
+  #s10 .end { position: absolute; left: 0; width: 1080px; text-align: center; }
+
+  /* preview chrome (not in renders) */
+  #scrub { position: fixed; left: 0; right: 0; bottom: 0; height: 6px; background: rgba(255,255,255,.12); cursor: pointer; z-index: 99; }
+  #scrub div { height: 100%; width: 0; background: #ffe91f; }
+  body.render #scrub { display: none; }
+</style>
+</head>
+<body>
+<div id="stage">
+
+  <!-- 01 HOOK ------------------------------------------------------------ -->
+  <section class="scene" id="s1">
+    <div class="vig"></div>
+    <svg id="net1"></svg>
+    <div class="tab sys"><img src="assets/bt-logo.png" alt=""><span><b>CWB</b> <i class="sl"></i><b data-file></b><i class="sl"></i>Ground stop</span></div>
+    <div class="head">
+      <div class="lbl sys">Fri Nov 13 2026<i class="sl"></i>3:54 PM ET</div>
+      <div class="mach">Every U.S.</div>
+      <div class="mach">takeoff</div>
+      <span class="hum rd"><span class="tx">stopped.</span><span class="bar"></span></span>
+    </div>
+    <div class="src sys">Source<i class="sl"></i><em>FAA statement, Nov 13</em></div>
+  </section>
+
+  <!-- 02 THE ORDER ------------------------------------------------------- -->
+  <section class="scene" id="s2">
+    <div class="vig"></div>
+    <div class="tab sys"><img src="assets/bt-logo.png" alt=""><span><b data-file></b><i class="sl"></i>01<i class="sl"></i>The order</span></div>
+    <div class="head">
+      <div class="lbl sys">FAA<i class="sl"></i>Nationwide ground stop</div>
+      <div class="mach" id="dur">0H 00M</div>
+      <span class="hum rd"><span class="tx">on the ground.</span><span class="bar"></span></span>
+    </div>
+    <svg id="clock">
+      <circle class="ln thin dim" cx="540" cy="1040" r="290"/>
+      <g id="ticks"></g>
+      <text x="540" y="806" text-anchor="middle">12</text>
+      <text x="788" y="1049" text-anchor="middle">3</text>
+      <text x="540" y="1292" text-anchor="middle">6</text>
+      <text x="292" y="1049" text-anchor="middle">9</text>
+      <path id="arc" class="lny draw" pathLength="1" style="stroke-width:16"/>
+      <line id="hand" class="ln" x1="540" y1="1040" x2="540" y2="790"/>
+      <circle cx="540" cy="1040" r="9" fill="#f4f1ea"/>
+      <g id="c-in"><circle cx="798.4" cy="1171.7" r="11" fill="#ffe91f"/><text class="p" x="826" y="1218" font-size="30">3:54 PM</text><text x="826" y="1256">ISSUED</text></g>
+      <g id="c-out"><circle cx="272.1" cy="1151" r="11" fill="#ffe91f"/><text class="p" x="250" y="1218" font-size="30" text-anchor="end">8:15 PM</text><text x="250" y="1256" text-anchor="end">LIFTED</text></g>
+      <text id="c-mid" class="p" x="540" y="1180" text-anchor="middle" font-size="24">ALL U.S. AIRPORTS</text>
+    </svg>
+    <div class="src sys">Source<i class="sl"></i><em>FAA</em><i class="sl"></i>Times Eastern</div>
+  </section>
+
+  <!-- 03 RARITY ---------------------------------------------------------- -->
+  <section class="scene" id="s3">
+    <div class="vig"></div>
+    <div class="tab sys"><img src="assets/bt-logo.png" alt=""><span><b data-file></b><i class="sl"></i>02<i class="sl"></i>How rare</span></div>
+    <div class="head">
+      <div class="lbl sys">Nationwide ground stops<i class="sl"></i>U.S. history</div>
+      <div class="mach">Only the 3rd</div>
+      <span class="hum rd"><span class="tx">ever.</span><span class="bar"></span></span>
+    </div>
+    <svg id="hist">
+      <path id="h-line" class="ln thin draw" pathLength="1" d="M110 760 V1262"/>
+      <g class="h-row"><circle cx="110" cy="790" r="12" fill="#f4f1ea"/><text class="m" x="170" y="822" font-size="92">2001</text><text x="170" y="870">SEPT 11 ATTACKS</text></g>
+      <g class="h-row"><circle cx="110" cy="1010" r="12" fill="#f4f1ea"/><text class="m" x="170" y="1042" font-size="92">2023</text><text x="170" y="1090">SAFETY-NOTICE SYSTEM OUTAGE</text></g>
+      <g class="h-row"><circle cx="110" cy="1230" r="16" fill="#ffe91f"/><text class="m" x="170" y="1262" font-size="92">2026</text><text class="yt" x="170" y="1310">COMMS FAILURE AT CONTROL CENTERS</text></g>
+    </svg>
+    <div class="src sys">Source<i class="sl"></i><em>FAA, news reports</em></div>
+  </section>
+
+  <!-- 04 HOW ATC WORKS --------------------------------------------------- -->
+  <section class="scene" id="s4">
+    <div class="vig"></div>
+    <div class="tab sys"><img src="assets/bt-logo.png" alt=""><span><b data-file></b><i class="sl"></i>03<i class="sl"></i>How it works</span></div>
+    <div class="head">
+      <div class="lbl sys">Who talks to your plane</div>
+      <div class="mach">Centers guide</div>
+      <div class="mach">every flight</div>
+      <span class="hum rd"><span class="tx">between airports.</span><span class="bar"></span></span>
+    </div>
+    <svg id="prof">
+      <path id="p-ground" class="ln thin draw" pathLength="1" d="M70 1300 H1010"/>
+      <path id="p-path" class="ln thin dim draw" pathLength="1" d="M110 1300 C 250 1300, 290 900, 430 900 L 650 900 C 790 900, 830 1300, 970 1300"/>
+      <g id="p-zones">
+        <path class="lny" style="stroke-width:4" d="M318 1300 L 376 1220"/>
+        <path class="lny" style="stroke-width:4" d="M704 1300 L 762 1220"/>
+        <text x="110" y="1352">AIRPORT</text>
+        <text class="yt" x="540" y="1352" text-anchor="middle">EN ROUTE CENTERS</text>
+        <text x="970" y="1352" text-anchor="end">AIRPORT</text>
+      </g>
+      <g id="p-st"></g>
+      <line id="p-link" class="lny" x1="0" y1="0" x2="0" y2="0" style="stroke-width:5" opacity="0"/>
+      <text id="p-linkt" class="yt" x="0" y="0" font-size="24" text-anchor="middle" opacity="0">VOICE + DATA LINK</text>
+      <g id="p-plane" opacity="0"><path d="M0,-17 L11,13 L0,6 L-11,13 Z" fill="#f4f1ea"/></g>
+      <text id="p-artcc" x="540" y="1400" text-anchor="middle" font-size="22">ARTCC = AIR ROUTE TRAFFIC CONTROL CENTER</text>
+    </svg>
+    <div class="src sys">Source<i class="sl"></i><em>FAA</em><i class="sl"></i>Simplified</div>
+  </section>
+
+  <!-- 05 WHAT BROKE ------------------------------------------------------ -->
+  <section class="scene" id="s5">
+    <div class="vig"></div>
+    <div class="tab sys"><img src="assets/bt-logo.png" alt=""><span><b data-file></b><i class="sl"></i>04<i class="sl"></i>What failed</span></div>
+    <div class="head">
+      <div class="lbl sys">The official explanation<i class="sl"></i>U.S. DOT</div>
+      <div class="mach">Old routers,</div>
+      <span class="hum rd"><span class="tx">overloaded.</span><span class="bar"></span></span>
+    </div>
+    <svg id="rout">
+      <g id="r-lines"></g>
+      <g id="r-pk"></g>
+      <g id="r-planes"></g>
+      <g id="r-box">
+        <rect id="r-rect" class="ln" x="340" y="960" width="400" height="170" rx="18" fill="#0a0908"/>
+        <text class="p" x="372" y="1012" font-size="22">COMMS ROUTER</text>
+        <text id="r-pct" class="p" x="708" y="1012" font-size="22" text-anchor="end">0%</text>
+        <rect class="ln thin dim" x="372" y="1044" width="336" height="26" rx="13"/>
+        <rect id="r-fill" x="372" y="1044" width="336" height="26" rx="13" fill="#f4f1ea"/>
+        <text id="r-load" x="372" y="1106" font-size="18">DATA LOAD</text>
+      </g>
+      <g id="r-ctrs"></g>
+      <g id="r-x"></g>
+      <text id="r-c1" class="rt" x="64" y="712" font-size="26">STATIC ON VOICE LINES</text>
+      <text id="r-c2" class="rt" x="1016" y="1404" font-size="26" text-anchor="end">SCREENS FLICKERING</text>
+    </svg>
+    <div class="src sys">Source<i class="sl"></i><em>Sec. Duffy via CNN, CBS</em></div>
+  </section>
+
+  <!-- 06 WHY STOP EVERYTHING -------------------------------------------- -->
+  <section class="scene" id="s6">
+    <div class="vig"></div>
+    <svg id="net6"></svg>
+    <div class="tab sys"><img src="assets/bt-logo.png" alt=""><span><b data-file></b><i class="sl"></i>05<i class="sl"></i>Why stop it all</span></div>
+    <div class="head">
+      <div class="lbl sys">Can't talk to planes? Don't add more</div>
+      <div class="mach">No new</div>
+      <div class="mach">takeoffs</div>
+      <span class="hum rd"><span class="tx">by design.</span><span class="bar"></span></span>
+    </div>
+    <svg id="leg6">
+      <g class="lg"><path d="M0,-15 L10,11 L0,5 L-10,11 Z" fill="#f4f1ea" transform="translate(92 1300) rotate(60)"/><text class="p" x="132" y="1309">3,500+ IN THE AIR</text><path class="ln thin" d="M560 1300 H612 M598 1288 L612 1300 L598 1312"/><text x="640" y="1309">ALLOWED TO LAND</text></g>
+      <g class="lg"><circle class="lny" style="stroke-width:4" cx="92" cy="1368" r="13"/><circle cx="92" cy="1368" r="5" fill="#f4f1ea"/><text class="p" x="132" y="1377">DEPARTURES</text><path class="ln thin" d="M560 1368 H612 M598 1356 L612 1368 L598 1380"/><text class="yt" x="640" y="1377">HELD ON THE GROUND</text></g>
+    </svg>
+    <div class="src sys">Source<i class="sl"></i><em>FAA, news reports</em></div>
+  </section>
+
+  <!-- 07 WAS IT A HACK --------------------------------------------------- -->
+  <section class="scene" id="s7">
+    <div class="vig"></div>
+    <div class="tab sys"><img src="assets/bt-logo.png" alt=""><span><b data-file></b><i class="sl"></i>06<i class="sl"></i>Was it a hack</span></div>
+    <div class="head">
+      <div class="lbl sys">The question everyone asked</div>
+      <div class="mach">Cyberattack?</div>
+      <span class="hum rd"><span class="tx">no evidence so far.</span><span class="bar"></span></span>
+    </div>
+    <div class="row" style="top:742px"><span class="n sys">01</span><svg class="mk" viewBox="0 0 54 54" style="position:static"><path d="M12 12 L42 42 M42 12 L12 42" fill="none" stroke="#ff3b30" stroke-width="7" stroke-linecap="round"/></svg><div><div class="mach t steel">Cyberattack</div><div class="sys d">DHS<i class="sl"></i>No evidence so far</div></div></div>
+    <div class="row" style="top:902px"><span class="n sys">02</span><svg class="mk" viewBox="0 0 54 54" style="position:static"><path d="M12 12 L42 42 M42 12 L12 42" fill="none" stroke="#ff3b30" stroke-width="7" stroke-linecap="round"/></svg><div><div class="mach t steel">New AI traffic tool</div><div class="sys d">DOT<i class="sl"></i>Says not linked</div></div></div>
+    <div class="row" style="top:1062px"><span class="n sys">03</span><svg class="mk" viewBox="0 0 54 54" style="position:static"><path d="M9 29 L22 42 L46 13" fill="none" stroke="#ffe91f" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/></svg><div><div class="mach t">Old, overloaded gear</div><div class="sys d">DOT<i class="sl"></i>The official explanation</div></div></div>
+    <div class="row" style="top:1222px"><span class="n sys">04</span><svg class="mk" viewBox="0 0 54 54" style="position:static"><path d="M17 19 a10 10 0 1 1 15 9 q-5 3 -5 9 M27 46 v1" fill="none" stroke="#f4f1ea" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/></svg><div><div class="mach t">Exact root cause</div><div class="sys d yel">Still under investigation</div></div></div>
+    <div class="src sys">Source<i class="sl"></i><em>Axios, CBS, ABC, CNN</em><i class="sl"></i>As of Nov 14</div>
+  </section>
+
+  <!-- 08 FALLOUT --------------------------------------------------------- -->
+  <section class="scene" id="s8">
+    <div class="vig"></div>
+    <div class="tab sys"><img src="assets/bt-logo.png" alt=""><span><b data-file></b><i class="sl"></i>07<i class="sl"></i>The fallout</span></div>
+    <div class="head">
+      <div class="lbl sys">Friday alone<i class="sl"></i>U.S. flights</div>
+      <div class="mach" id="cnt">0</div>
+      <span class="hum rd"><span class="tx">delayed or canceled.</span><span class="bar"></span></span>
+    </div>
+    <svg id="grid"></svg>
+    <div class="src sys">Source<i class="sl"></i><em>FlightAware via CNN</em><i class="sl"></i>1 plane = 100 flights</div>
+  </section>
+
+  <!-- 09 LESSON ---------------------------------------------------------- -->
+  <section class="scene" id="s9">
+    <div class="vig"></div>
+    <div class="tab sys"><img src="assets/bt-logo.png" alt=""><span><b data-file></b><i class="sl"></i>08<i class="sl"></i>The lesson</span></div>
+    <div class="head">
+      <div class="lbl sys">The security lesson<i class="sl"></i>CIA triad</div>
+      <div class="mach">One weak link</div>
+      <span class="hum rd"><span class="tx">grounds a nation.</span><span class="bar"></span></span>
+    </div>
+    <svg id="tri">
+      <path id="t-path" class="ln thin draw" pathLength="1" d="M540 860 L200 1290 L880 1290 Z"/>
+      <g id="t-c"><circle cx="200" cy="1290" r="11" fill="#f4f1ea"/><text class="p" x="64" y="1352">CONFIDENTIALITY</text></g>
+      <g id="t-i"><circle cx="880" cy="1290" r="11" fill="#f4f1ea"/><text class="p" x="1016" y="1352" text-anchor="end">INTEGRITY</text></g>
+      <g id="t-a"><circle cx="540" cy="860" r="18" fill="#ffe91f"/><text class="m" x="540" y="800" text-anchor="middle" font-size="64" style="fill:#ffe91f">AVAILABILITY</text></g>
+      <text id="t-mid" x="540" y="1184" text-anchor="middle" font-size="24">HAS TO STAY UP</text>
+    </svg>
+    <div class="src sys">Security<i class="sl"></i><em>is not only about hackers</em></div>
+  </section>
+
+  <!-- 10 END CARD -------------------------------------------------------- -->
+  <section class="scene" id="s10">
+    <div class="vig"></div>
+    <div class="end" style="top:520px"><img id="e-logo" src="assets/bt-logo.png" alt="" style="width:300px;height:300px"></div>
+    <div class="end" style="top:850px"><div class="mach" id="e-name" style="font-size:80px;display:inline-block">Cyber with Ben</div></div>
+    <div class="end" style="top:958px"><span class="hum rd" style="font-size:118px;padding-right:.1em"><span class="tx">plain talk, open files.</span><span class="bar"></span></span></div>
+    <div class="end sys" id="e-tag" style="top:1180px;font-size:26px;color:var(--paper)">@CyberWithBen<i class="sl"></i><span data-file></span> closed</div>
+  </section>
+
+  <div id="slash"></div>
+</div>
+<div id="scrub"><div></div></div>
+
+<script>
+/* ============================================================================
+   EDIT HERE. Scene lengths in seconds: stretch or shrink each one to fit the
+   voiceover. Everything inside a scene is timed from that scene's start and
+   simply holds longer when the scene gets longer.
+   ========================================================================== */
+const FILE_NO = 'File 013';
+const SCENES = [
+  { id: 's1',  dur: 5.5 },  // hook: every U.S. takeoff stopped
+  { id: 's2',  dur: 6.0 },  // the order: 3:54 PM to 8:15 PM, 4h 21m
+  { id: 's3',  dur: 5.0 },  // only the third ever
+  { id: 's4',  dur: 7.5 },  // how it works: en route centers
+  { id: 's5',  dur: 8.0 },  // what failed: old routers, overloaded
+  { id: 's6',  dur: 6.5 },  // why stop everything: no new takeoffs
+  { id: 's7',  dur: 7.0 },  // was it a hack: no evidence so far
+  { id: 's8',  dur: 5.5 },  // fallout: 15,000+ flights
+  { id: 's9',  dur: 5.0 },  // lesson: availability
+  { id: 's10', dur: 3.5 },  // end card
+];
+/* ========================================================================== */
+
+const NS = 'http://www.w3.org/2000/svg';
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const el = (tag, attrs = {}, parent) => { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); if (parent) parent.appendChild(e); return e; };
+const clamp = (v, a = 0, b = 1) => Math.max(a, Math.min(b, v));
+const lerp = (a, b, u) => a + (b - a) * u;
+const smooth = (u) => { u = clamp(u); return u * u * (3 - 2 * u); };
+function rng(seed) { return () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+
+$$('[data-file]').forEach(e => e.textContent = FILE_NO);
+const START = []; let TOTAL = 0;
+SCENES.forEach(s => { START.push(TOTAL); TOTAL += s.dur; });
+
+/* ---------- the route map (scenes 1 and 6) -------------------------------- */
+const AIRPORTS = { SEA:[-122.3,47.4], SFO:[-122.4,37.6], LAX:[-118.4,33.9], LAS:[-115.2,36.1], PHX:[-112,33.4], SLC:[-112,40.8], DEN:[-104.7,39.9], DFW:[-97,32.9], IAH:[-95.3,30], MSP:[-93.2,44.9], ORD:[-87.9,42], DTW:[-83.4,42.2], ATL:[-84.4,33.6], CLT:[-80.9,35.2], MIA:[-80.3,25.8], DCA:[-77,38.9], JFK:[-73.8,40.6], BOS:[-71,42.4] };
+const LABELS = { SEA:[14,-12], SFO:[-70,8], LAX:[-66,30], DEN:[14,-12], DFW:[-22,38], ORD:[-20,-18], ATL:[16,30], MIA:[-74,10], JFK:[16,24], BOS:[-12,-18] };
+const ROUTES = [['JFK','LAX'],['JFK','SFO'],['BOS','ORD'],['ORD','DEN'],['ORD','DFW'],['ATL','MIA'],['ATL','DFW'],['ATL','JFK'],['ATL','ORD'],['DFW','LAX'],['DEN','SFO'],['DEN','SEA'],['SEA','SFO'],['LAX','SFO'],['LAX','PHX'],['PHX','DFW'],['IAH','MIA'],['IAH','DEN'],['MSP','SEA'],['MSP','ORD'],['CLT','JFK'],['DCA','ORD'],['DCA','ATL'],['BOS','MIA'],['SLC','DEN'],['LAS','LAX'],['LAS','DEN'],['DTW','ATL'],['SEA','ORD'],['MIA','JFK'],['CLT','DFW'],['SLC','SFO']];
+
+function makeNet(svg, y0) {
+  const P = {}; for (const k in AIRPORTS) { const [lo, la] = AIRPORTS[k]; P[k] = [60 + (lo + 125) / 58 * 960, y0 + (50 - la) / 26 * 545]; }
+  const gR = el('g', {}, svg), gP = el('g', {}, svg), gA = el('g', {}, svg);
+  const rand = rng(7), flights = [];
+  ROUTES.forEach(([a, b]) => {
+    const A = P[a], B = P[b], dx = B[0] - A[0], dy = B[1] - A[1], d = Math.hypot(dx, dy);
+    const C = [(A[0] + B[0]) / 2 + dy / d * d * .16 * (dx > 0 ? 1 : -1), (A[1] + B[1]) / 2 - Math.abs(dx) / d * d * .16];
+    el('path', { class: 'ln', 'stroke-width': 1.5, opacity: .22, d: `M${A[0]} ${A[1]} Q${C[0]} ${C[1]} ${B[0]} ${B[1]}` }, gR);
+    [[A, B], [B, A]].forEach(([s, e]) => flights.push({ s, e, C, dur: 2.4 + d / 150, period: 4.2 + rand() * 3.2, off: rand() * 7 }));
+  });
+  const rings = {};
+  for (const k in P) {
+    rings[k] = el('circle', { class: 'lny ring', 'stroke-width': 4, cx: P[k][0], cy: P[k][1], r: 14, opacity: 0 }, gA);
+    el('circle', { cx: P[k][0], cy: P[k][1], r: 5.5, fill: '#f4f1ea' }, gA);
+    if (LABELS[k]) el('text', { x: P[k][0] + LABELS[k][0], y: P[k][1] + LABELS[k][1], 'font-size': 22 }, gA).textContent = k;
+  }
+  const pool = []; for (let i = 0; i < 110; i++) pool.push(el('path', { d: 'M0,-13 L8.5,10 L0,4.5 L-8.5,10 Z', fill: '#f4f1ea', opacity: 0 }, gP));
+  return {
+    routes: gR, rings: Object.values(rings).sort((a, b) => a.getAttribute('cx') - b.getAttribute('cx')),
+    // t: sim time. Flights whose departure falls after stopT never leave the gate.
+    draw(t, stopT) {
+      let n = 0;
+      for (const f of flights) {
+        const k0 = Math.floor((t - f.dur - f.off) / f.period), k1 = Math.floor((t - f.off) / f.period);
+        for (let k = k0; k <= k1; k++) {
+          const td = f.off + k * f.period; if (td >= stopT) continue;
+          const u = (t - td) / f.dur; if (u <= 0 || u >= 1 || n >= pool.length) continue;
+          const v = 1 - u, x = v * v * f.s[0] + 2 * v * u * f.C[0] + u * u * f.e[0], y = v * v * f.s[1] + 2 * v * u * f.C[1] + u * u * f.e[1];
+          const tx = 2 * v * (f.C[0] - f.s[0]) + 2 * u * (f.e[0] - f.C[0]), ty = 2 * v * (f.C[1] - f.s[1]) + 2 * u * (f.e[1] - f.C[1]);
+          const p = pool[n++];
+          p.setAttribute('transform', `translate(${x.toFixed(2)} ${y.toFixed(2)}) rotate(${(Math.atan2(ty, tx) * 57.2958 + 90).toFixed(1)})`);
+          p.setAttribute('opacity', Math.min(1, u * 9, v * 9).toFixed(3));
+        }
+      }
+      for (; n < pool.length; n++) pool[n].setAttribute('opacity', 0);
+    },
+  };
+}
+const net1 = makeNet($('#net1'), 770), net6 = makeNet($('#net6'), 690);
+
+/* ---------- static builds -------------------------------------------------- */
+// clock (scene 2)
+const CX = 540, CY = 1040, R = 290, A0 = 117, A1 = 247.5;
+const pol = (a, r) => [CX + r * Math.sin(a * Math.PI / 180), CY - r * Math.cos(a * Math.PI / 180)];
+for (let i = 0; i < 60; i++) { const big = i % 5 === 0, [x1, y1] = pol(i * 6, R - (big ? 26 : 12)), [x2, y2] = pol(i * 6, R); el('line', { class: 'ln thin' + (big ? '' : ' dim'), x1, y1, x2, y2 }, $('#ticks')); }
+{ const [x1, y1] = pol(A0, R), [x2, y2] = pol(A1, R); $('#arc').setAttribute('d', `M${x1} ${y1} A${R} ${R} 0 0 1 ${x2} ${y2}`); }
+
+// flight profile (scene 4)
+const STN = [430, 540, 650];
+STN.forEach((x, i) => { const g = el('g', { class: 'stn', id: 'stn' + i }, $('#p-st')); el('path', { class: 'ln', d: `M${x - 22} 1300 V1268 H${x + 22} V1300 M${x} 1268 V1244 M${x - 16} 1232 A16 16 0 0 0 ${x + 16} 1232` }, g); });
+const pPath = $('#p-path'), pLen = pPath.getTotalLength();
+
+// router (scene 5)
+const RX = [220, 540, 860], rPaths = [];
+RX.forEach((x, i) => {
+  const up = el('path', { class: 'ln thin rl', d: `M${x} 800 C ${x} 880, ${460 + i * 80} 880, ${460 + i * 80} 960` }, $('#r-lines'));
+  const dn = el('path', { class: 'ln thin rl', d: `M${460 + i * 80} 1130 C ${460 + i * 80} 1200, ${x} 1200, ${x} 1270` }, $('#r-lines'));
+  rPaths.push(up, dn);
+  el('path', { d: 'M0,-20 L13,15 L0,7 L-13,15 Z', fill: '#f4f1ea', transform: `translate(${x} 770)` }, $('#r-planes'));
+  const c = el('g', { class: 'ctr' }, $('#r-ctrs'));
+  el('rect', { class: 'ln', x: x - 92, y: 1270, width: 184, height: 74, rx: 12, fill: '#0a0908' }, c);
+  el('text', { class: 'p', x, y: 1316, 'text-anchor': 'middle', 'font-size': 22 }, c).textContent = 'CENTER';
+  [[x * .45 + (460 + i * 80) * .55, 884], [x * .55 + (460 + i * 80) * .45, 1204]].forEach(([mx, my]) => el('path', { class: 'rx', d: `M${mx - 13} ${my - 13} l26 26 m0 -26 l-26 26`, fill: 'none', stroke: '#ff3b30', 'stroke-width': 6, 'stroke-linecap': 'round', opacity: 0 }, $('#r-x')));
+});
+const PK = 9, pk = rPaths.map((p, j) => { const r = rng(31 + j); return Array.from({ length: PK }, (_, k) => ({ e: el('circle', { r: 5, fill: '#f4f1ea', opacity: 0 }, $('#r-pk')), ph: (k + r() * .6) / PK, len: p.getTotalLength() })); });
+
+// flight grid (scene 8): 150 planes, one per 100 flights
+const gridP = []; for (let r = 0; r < 10; r++) for (let c = 0; c < 15; c++) gridP.push({ e: el('path', { d: 'M0,-15 L10,11 L0,5 L-10,11 Z', fill: '#f4f1ea', opacity: .14, transform: `translate(${106 + c * 62} ${760 + r * 64}) rotate(36)` }, $('#grid')), k: c + (9 - r) * .9 });
+const gridMax = Math.max(...gridP.map(g => g.k));
+
+// a font-size attribute loses to the stylesheet rule for svg text, so promote it to an inline style
+$$('svg text[font-size]').forEach(e => { e.style.fontSize = e.getAttribute('font-size') + 'px'; });
+
+/* ---------- timeline ------------------------------------------------------- */
+const tl = gsap.timeline({ paused: true });
+const E = 'expo.out';
+gsap.set('.rd .bar', { skewX: -36 });
+gsap.set('#slash', { skewX: -36 });
+
+const rise = (targets, at, o = {}) => tl.fromTo(targets, { x: -22, y: 30, opacity: 0, filter: 'blur(10px)' }, { x: 0, y: 0, opacity: 1, filter: 'blur(0px)', duration: o.d || .55, ease: E, stagger: o.stagger || 0 }, at);
+const fade = (targets, at, o = {}) => tl.fromTo(targets, { opacity: 0 }, { opacity: o.to == null ? 1 : o.to, duration: o.d || .5, ease: 'power2.out', stagger: o.stagger || 0 }, at);
+const drawOn = (target, at, d = .9, ease = 'power2.inOut') => { tl.set(target, { opacity: 1 }, at); tl.fromTo(target, { strokeDashoffset: 1 }, { strokeDashoffset: 0, duration: d, ease }, at); };
+// The brand handshake: the leaning yellow bar sweeps on, the word appears under it, the bar lifts off.
+function redact(scope, at) {
+  const tx = $('.rd .tx', scope), bar = $('.rd .bar', scope);
+  tl.set(tx, { opacity: 0 }, 0);
+  tl.fromTo(bar, { scaleX: 0, transformOrigin: '0% 50%' }, { scaleX: 1, duration: .3, ease: 'power3.out' }, at);
+  tl.set(tx, { opacity: 1 }, at + .3);
+  tl.set(bar, { transformOrigin: '100% 50%' }, at + .38);
+  tl.to(bar, { scaleX: 0, duration: .42, ease: 'power3.inOut' }, at + .4);
+}
+function head(scope, at, humAt) {
+  rise($$('.tab', scope), at);
+  rise($$('.head .lbl', scope), at + .08);
+  rise($$('.head .mach', scope), at + .18, { stagger: .09 });
+  redact(scope, humAt);
+  fade($$('.src', scope), at + .9);
+}
+
+// scene changes: a 0.5 s wipe along the 36° slash
+SCENES.forEach((s, i) => {
+  tl.addLabel('scene:' + s.id, START[i]);
+  if (!i) return;
+  const sc = '#' + s.id, t = START[i] - .12;
+  tl.set(sc, { visibility: 'visible' }, t);
+  tl.fromTo(sc, { '--p': 0 }, { '--p': 1, duration: .55, ease: 'power3.inOut' }, t);
+  tl.set('#slash', { opacity: 1 }, t);
+  tl.fromTo('#slash', { x: -1424 }, { x: 1116, duration: .55, ease: 'power3.inOut' }, t);
+  tl.set('#slash', { opacity: 0 }, t + .55);
+  tl.set('#' + SCENES[i - 1].id, { visibility: 'hidden' }, t + .56);
+});
+
+// 01 hook. Frame 0 is the poster: the sky is busy and the claim is already up.
+{ const T = START[0], s = $('#s1');
+  rise($$('.head .lbl', s), T + .1); fade($$('.src', s), T + .9);
+  redact(s, T + 2.3);
+  tl.to(net1.routes, { opacity: .45, duration: 1.2, ease: 'power2.out' }, T + 2.6);
+  tl.fromTo(net1.rings, { opacity: 0, scale: 2.2, transformOrigin: '50% 50%' }, { opacity: 1, scale: 1, duration: .5, ease: E, stagger: .025 }, T + 2.6);
+}
+// 02 the order
+{ const T = START[1], s = $('#s2');
+  head(s, T + .15, T + 3.5);
+  fade(['#clock > circle', '#ticks', '#clock > text:not(#c-mid)', '#hand'], T + .3, { d: .6 });
+  gsap.set('#clock .dim', { opacity: .28 });
+  rise('#c-in', T + .8);
+  const o = { m: 0 };
+  drawOn('#arc', T + 1.0, 2.3);
+  tl.fromTo('#hand', { rotation: A0, svgOrigin: `${CX} ${CY}` }, { rotation: A1, duration: 2.3, ease: 'power2.inOut' }, T + 1.0);
+  tl.fromTo(o, { m: 0 }, { m: 261, duration: 2.3, ease: 'power2.inOut', onUpdate: () => { const m = Math.round(o.m); $('#dur').textContent = `${Math.floor(m / 60)}H ${String(m % 60).padStart(2, '0')}M`; } }, T + 1.0);
+  rise('#c-out', T + 3.1); fade('#c-mid', T + 1.4);
+}
+// 03 rarity
+{ const T = START[2], s = $('#s3');
+  head(s, T + .15, T + 2.5);
+  drawOn('#h-line', T + .5, 1.6);
+  $$('.h-row', s).forEach((r, i) => rise(r, T + .7 + i * .6));
+}
+// 04 how it works
+{ const T = START[3], s = $('#s4');
+  head(s, T + .15, T + 2.6);
+  drawOn('#p-ground', T + .4, .8); drawOn('#p-path', T + .6, 1.2); tl.set('#p-path', { opacity: .4 }, T + .6);
+  fade('#p-zones', T + 1.0); rise($$('.stn', s), T + 1.1, { stagger: .1 }); fade('#p-artcc', T + 1.6);
+}
+// 05 what failed
+{ const T = START[4], s = $('#s5');
+  head(s, T + .15, T + 3.9);
+  fade(['#r-planes', '#r-ctrs'], T + .35, { stagger: .1 }); rise('#r-box', T + .45); fade('#r-lines', T + .6);
+  tl.fromTo('#r-x .rx', { opacity: 0, scale: 1.8, transformOrigin: '50% 50%' }, { opacity: 1, scale: 1, duration: .35, ease: E, stagger: .06 }, T + 4.1);
+  rise('#r-c1', T + 4.5); rise('#r-c2', T + 4.9);
+}
+// 06 why stop everything
+{ const T = START[5], s = $('#s6');
+  head(s, T + .15, T + 2.4);
+  gsap.set(net6.routes, { opacity: .45 });
+  tl.fromTo(net6.rings, { opacity: 0, scale: 2.2, transformOrigin: '50% 50%' }, { opacity: 1, scale: 1, duration: .5, ease: E, stagger: .025 }, T + .5);
+  rise($$('.lg', s), T + 1.3, { stagger: .7 });
+}
+// 07 was it a hack
+{ const T = START[6], s = $('#s7');
+  head(s, T + .15, T + 1.5);
+  $$('.row', s).forEach((r, i) => rise(r, T + 2.2 + i * .75));
+}
+// 08 fallout
+{ const T = START[7], s = $('#s8');
+  head(s, T + .15, T + 2.5);
+  fade('#grid', T + .3);
+  const o = { v: 0 };
+  tl.fromTo(o, { v: 0 }, { v: 15000, duration: 2.0, ease: 'power2.out', onUpdate: () => { $('#cnt').textContent = (Math.round(o.v / 100) * 100).toLocaleString('en-US') + (o.v >= 14999 ? '+' : ''); } }, T + .5);
+}
+// 09 lesson
+{ const T = START[8], s = $('#s9');
+  head(s, T + .15, T + 1.5);
+  drawOn('#t-path', T + .5, 1.4);
+  rise('#t-c', T + .9); rise('#t-i', T + 1.2); rise('#t-a', T + 2.3); fade('#t-mid', T + 2.9);
+  tl.fromTo('#t-a circle', { scale: 2.4, transformOrigin: '50% 50%' }, { scale: 1, duration: .6, ease: E }, T + 2.3);
+}
+// 10 end card
+{ const T = START[9], s = $('#s10');
+  rise('#e-logo', T + .2, { d: .7 }); rise('#e-name', T + .4); redact(s, T + .9); fade('#e-tag', T + 1.4);
+}
+tl.to({}, { duration: .001 }, TOTAL - .001);
+
+/* ---------- things that move every frame (pure functions of time) --------- */
+const live = (i, t) => t > START[i] - .2 && t < START[i] + SCENES[i].dur + .7;
+function drawAll(t) {
+  if (live(0, t)) net1.draw(t - START[0] + 30, 32.6);            // sky is full at frame 0; the stop lands at 2.6 s
+  if (live(5, t)) net6.draw(t - START[5] + 30.6, 30.9);          // picks up as the stop lands, then the sky drains
+
+  if (live(3, t)) {                                              // plane along the flight profile, handed centre to centre
+    const u = smooth((t - START[3] - 1.3) / Math.max(3, SCENES[3].dur - 2.1)), p = pPath.getPointAtLength(u * pLen), q = pPath.getPointAtLength(Math.min(pLen, u * pLen + 2));
+    const on = clamp((t - START[3] - 1.2) / .3);
+    $('#p-plane').setAttribute('transform', `translate(${p.x.toFixed(2)} ${p.y.toFixed(2)}) rotate(${(Math.atan2(q.y - p.y, q.x - p.x) * 57.2958 + 90).toFixed(1)})`);
+    $('#p-plane').setAttribute('opacity', on);
+    const k = p.x < 485 ? 0 : p.x < 595 ? 1 : 2, inC = clamp((p.x - 395) / 45) * clamp((685 - p.x) / 45) * on;
+    const L = $('#p-link'); L.setAttribute('x1', STN[k]); L.setAttribute('y1', 1232); L.setAttribute('x2', p.x.toFixed(2)); L.setAttribute('y2', (p.y + 24).toFixed(2)); L.setAttribute('opacity', inC.toFixed(3));
+    const LT = $('#p-linkt'); LT.setAttribute("x", 540); LT.setAttribute("y", 852); LT.setAttribute('opacity', inC.toFixed(3));
+    STN.forEach((x, i) => $('#stn' + i + ' path').style.stroke = (i === k && inC > .5) ? '#ffe91f' : '#f4f1ea');
+  }
+
+  if (live(4, t)) {                                              // data piles into the router until it chokes
+    const s = t - START[4], load = clamp((s - .9) / 2.9), dead = clamp((s - 3.8) / .5), pct = Math.round(lerp(22, 100, smooth(load)));
+    const n = lerp(1.5, PK, smooth(load));
+    pk.forEach((line, j) => line.forEach((d, k) => {
+      const u = ((s * (j % 2 ? .42 : .5) + d.ph) % 1 + 1) % 1, pt = rPaths[j].getPointAtLength(u * d.len);
+      d.e.setAttribute('cx', pt.x.toFixed(2)); d.e.setAttribute('cy', pt.y.toFixed(2));
+      d.e.setAttribute('opacity', (clamp(n - k) * Math.min(1, u * 8, (1 - u) * 8) * clamp((s - .7) / .4) * (1 - dead)).toFixed(3));
+    }));
+    $('#r-pct').textContent = pct + '%'; $('#r-fill').setAttribute('width', (336 * pct / 100).toFixed(1));
+    const hot = pct >= 100, col = hot ? '#ff3b30' : '#f4f1ea';
+    $('#r-fill').setAttribute('fill', col); $('#r-rect').style.stroke = col; $('#r-pct').style.fill = col;
+    $('#r-load').textContent = hot ? 'OVERLOADED' : 'DATA LOAD'; $('#r-load').style.fill = hot ? '#ff3b30' : '';
+    const fl = dead > 0 ? ((Math.sin(s * 47) + Math.sin(s * 113 + 1.3)) > 0 ? .55 : .16) : 1;
+    $$('.rl').forEach(p => { p.style.opacity = lerp(1, fl, dead); p.style.strokeDasharray = dead > 0 ? '10 14' : ''; });
+  }
+
+  if (live(7, t)) {                                              // the count, as a shape
+    const s = t - START[7], w = 1 - Math.pow(1 - clamp((s - .5) / 2.0), 2);
+    gridP.forEach(g => g.e.setAttribute('opacity', lerp(.14, 1, clamp(w * (gridMax + 3) - g.k)).toFixed(3)));
+  }
+}
+tl.eventCallback('onUpdate', () => drawAll(tl.time()));
+
+/* ---------- runtime: fit text, expose the timeline, preview controls ------ */
+function fit() { $$('.head .mach, .head .hum, .row .t').forEach(e => { e.style.fontSize = ''; let s = parseFloat(getComputedStyle(e).fontSize); const max = e.closest('.row') ? 820 : 952; while (e.scrollWidth > max && s > 30) { s -= 2; e.style.fontSize = s + 'px'; } }); }
+const RENDER = /[?&]render/.test(location.search);
+if (RENDER) document.body.classList.add('render');
+window.__timelines = { main: tl }; window.__duration = TOTAL;
+window.__seek = (t) => { tl.time(clamp(t, 0, TOTAL), false); drawAll(tl.time()); };
+
+document.fonts.ready.then(() => {
+  // widest states first, so count-ups never reflow the layout
+  $('#dur').textContent = '4H 21M'; $('#cnt').textContent = '15,000+'; fit();
+  window.__seek(0); window.__ready = true;
+  if (RENDER) return;
+  const stage = $('#stage'), bar = $('#scrub div');
+  const size = () => { const k = Math.min(innerWidth / 1080, (innerHeight - 6) / 1920); stage.style.transform = `translate(${(innerWidth - 1080 * k) / 2}px,0) scale(${k})`; };
+  addEventListener('resize', size); size();
+  tl.eventCallback('onUpdate', () => { drawAll(tl.time()); bar.style.width = (tl.time() / TOTAL * 100) + '%'; });
+  tl.eventCallback('onComplete', () => tl.restart());
+  stage.addEventListener('click', () => tl.paused(!tl.paused()));
+  addEventListener('keydown', e => { if (e.code === 'Space') tl.paused(!tl.paused()); if (e.code === 'ArrowRight') tl.time(tl.time() + 1); if (e.code === 'ArrowLeft') tl.time(tl.time() - 1); });
+  $('#scrub').addEventListener('click', e => tl.time(e.clientX / innerWidth * TOTAL));
+  tl.play(0);
+});
+</script>
+</body>
+</html>
